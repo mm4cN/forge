@@ -16,5 +16,6 @@ def build_system_prompt() -> str:
             load_prompt("tools.md"),
             load_prompt("coding.md"),
             load_prompt("workflow.md"),
+            load_prompt("path_handling.md"),
         ]
     )

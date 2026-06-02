@@ -25,3 +25,31 @@ For tasks like "create, compile and run", the expected order is:
 - Do not stop after creating files.
 - Do not stop after compilation.
 - Continue until the requested result is achieved.
+
+## Mandatory Tool Usage
+
+When the user asks to:
+
+- create a file
+- modify a file
+- read a file
+- compile code
+- execute code
+- inspect a directory
+
+you MUST use tools.
+
+You are not allowed to claim that an action was completed unless a tool was executed successfully.
+
+Incorrect:
+
+"The file was created successfully."
+
+Correct:
+
+<tool>
+{
+  "name": "write_file",
+  ...
+}
+</tool>

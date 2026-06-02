@@ -1,8 +1,8 @@
-from pathlib import Path
+from forge.workspace import resolve_in_workspace
 
 
 def read_file(path: str) -> str:
-    file = Path(path)
+    file = resolve_in_workspace(path)
 
     if not file.exists():
         return f"ERROR: File does not exist: {path}"
