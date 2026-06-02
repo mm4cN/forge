@@ -57,6 +57,15 @@ Arguments:
 
 - `command`: string
 
+### list_directory
+
+Lists files and directories in a directory.
+
+Arguments:
+
+- `path`: string, optional, defaults to `"."`
+- `max_entries`: integer, optional, defaults to `100`
+
 ## JSON Rules
 
 - Tool calls must contain valid JSON.

@@ -26,6 +26,12 @@ For tasks like "create, compile and run", the expected order is:
 - Do not stop after compilation.
 - Continue until the requested result is achieved.
 
+## Project Inspection
+
+- Before modifying an existing project, inspect the workspace with `list_directory`.
+- Use `list_directory` to discover files before reading them.
+- Do not guess project structure when a tool can inspect it.
+
 ## Mandatory Tool Usage
 
 When the user asks to:
