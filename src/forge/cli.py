@@ -10,7 +10,7 @@ from forge.db import (
     get_messages,
     list_sessions,
 )
-from forge.ollama import chat
+from forge.runtime import run_agent
 
 app = typer.Typer(help="Forge — local LLM CLI")
 console = Console()
@@ -36,7 +36,7 @@ def ask(
     add_message(conn, session, "user", prompt)
 
     messages = get_messages(conn, session)
-    answer = chat(selected_model, messages)
+    answer = run_agent(selected_model, messages)
 
     add_message(conn, session, "assistant", answer)
 
