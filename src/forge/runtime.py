@@ -13,7 +13,6 @@ TOOL_RE = re.compile(
 FINAL_TOOLS = {
     "find_files",
     "search_in_files",
-    "list_directory",
 }
 
 def parse_tool_call(text: str) -> dict | None:
