@@ -48,7 +48,7 @@ ollama serve
 Download a model:
 
 ```bash
-ollama pull qwen2.5-coder:3b
+ollama pull qwen2.5-coder:7b
 ```
 
 ## Usage
