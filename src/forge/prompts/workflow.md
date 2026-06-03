@@ -84,3 +84,9 @@ Correct:
 - Prefer reading files in chunks.
 - Use read_file with start_line and max_lines when inspecting large files.
 - Avoid reading entire files when only a small section is needed.
+
+## Finding Code
+
+- If the user asks to find a function, class, symbol, or implementation, use `search_in_files`.
+- If the user asks to find a file by name, use `find_files`.
+- For "find implementation of X", use `search_in_files` with `query` set to `X`.

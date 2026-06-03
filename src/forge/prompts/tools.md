@@ -70,20 +70,25 @@ Arguments:
 
 ### find_files
 
-Finds files in the workspace.
-
-Prefer this tool when you need to discover files by name or pattern.
+Finds files by name or glob-like pattern.
 
 Arguments:
 
-- `pattern`: string, optional
+- `pattern`: string, required
 - `path`: string, optional, defaults to `.`
 - `max_results`: integer, optional, defaults to `100`
 
-Implementation preference:
+Example:
 
-- Uses `fd` if available.
-- Falls back to `find`.
+<tool>
+{
+  "name": "find_files",
+  "arguments": {
+    "pattern": "runtime",
+    "path": "."
+  }
+}
+</tool>
 
 ### search_in_files
 
