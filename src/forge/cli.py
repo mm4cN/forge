@@ -153,7 +153,6 @@ def config() -> None:
 
     console.print(table)
 
-
 @app.command()
 def workspace() -> None:
     """

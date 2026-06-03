@@ -10,7 +10,11 @@ TOOL_RE = re.compile(
     r"<tool>\s*(\{.*?\})\s*</tool>",
     re.DOTALL,
 )
-
+FINAL_TOOLS = {
+    "find_files",
+    "search_in_files",
+    "list_directory",
+}
 
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
@@ -91,6 +95,8 @@ def run_agent(
             name,
             arguments,
         )
+        if name in FINAL_TOOLS:
+            return result
 
         runtime_messages.append(
             {

@@ -66,6 +66,40 @@ Arguments:
 - `path`: string, optional, defaults to `"."`
 - `max_entries`: integer, optional, defaults to `100`
 
+### find_files
+
+Finds files in the workspace.
+
+Prefer this tool when you need to discover files by name or pattern.
+
+Arguments:
+
+- `pattern`: string, optional
+- `path`: string, optional, defaults to `.`
+- `max_results`: integer, optional, defaults to `100`
+
+Implementation preference:
+
+- Uses `fd` if available.
+- Falls back to `find`.
+
+### search_in_files
+
+Searches for text inside files.
+
+Prefer this tool when you need to find symbols, functions, classes, TODOs, includes, imports, or configuration keys.
+
+Arguments:
+
+- `query`: string, required
+- `path`: string, optional, defaults to `.`
+- `max_results`: integer, optional, defaults to `100`
+
+Implementation preference:
+
+- Uses `rg` if available.
+- Falls back to `grep`.
+
 ## JSON Rules
 
 - Tool calls must contain valid JSON.

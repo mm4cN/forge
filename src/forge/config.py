@@ -9,7 +9,7 @@ SESSIONS_DIR = APP_DIR / "sessions"
 
 DEFAULT_CONFIG = {
     "ollama_url": "http://127.0.0.1:11434",
-    "default_model": "qwen2.5-coder:3b",
+    "default_model": "qwen2.5-coder:7b",
 }
 
 
@@ -27,7 +27,7 @@ def ensure_config() -> None:
 
     CONFIG_PATH.write_text(
         """ollama_url = "http://127.0.0.1:11434"
-default_model = "qwen2.5-coder:3b"
+default_model = "qwen2.5-coder:7b"
 """,
         encoding="utf-8",
     )

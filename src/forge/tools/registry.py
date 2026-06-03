@@ -1,14 +1,18 @@
+from forge.tools.find_files import find_files
 from forge.tools.list_directory import list_directory
 from forge.tools.read_file import read_file
 from forge.tools.run_command import run_command
+from forge.tools.search_in_files import search_in_files
 from forge.tools.write_file import write_file
 
 
 TOOLS = {
+    "find_files": find_files,
     "list_directory": list_directory,
     "read_file": read_file,
-    "write_file": write_file,
     "run_command": run_command,
+    "search_in_files": search_in_files,
+    "write_file": write_file,
 }
 
 

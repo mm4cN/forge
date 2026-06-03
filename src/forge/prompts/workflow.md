@@ -59,3 +59,10 @@ Correct:
   ...
 }
 </tool>
+
+## Search Workflow
+
+- Use `find_files` when looking for files by name.
+- Use `search_in_files` when looking for text, symbols, functions, classes, includes, imports, or configuration keys.
+- Prefer search tools before guessing file paths.
+- Prefer reading only the most relevant files after search.
