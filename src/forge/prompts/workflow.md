@@ -72,3 +72,9 @@ Correct:
 - Before modifying an existing project, inspect git status.
 - Use git diff to understand existing changes.
 - Do not assume the workspace is clean.
+
+## File Modification
+
+- Prefer `replace_in_file` when changing existing files.
+- Do not rewrite an entire file when a small modification is sufficient.
+- Use `read_file` first if you need context.

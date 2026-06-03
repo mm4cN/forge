@@ -1,12 +1,5 @@
 import typer
 
-from forge.tools.find_files import find_files
-from forge.tools.list_directory import list_directory
-from forge.tools.read_file import read_file
-from forge.tools.search_in_files import search_in_files
-from forge.tools.git_diff import git_diff
-from forge.tools.git_status import git_status
-
 from rich.console import Console
 from rich.table import Table
 
@@ -20,6 +13,14 @@ from forge.db import (
 )
 from forge.runtime import run_agent
 from forge.workspace import get_workspace
+
+from forge.tools.replace_in_file import replace_in_file
+from forge.tools.find_files import find_files
+from forge.tools.list_directory import list_directory
+from forge.tools.read_file import read_file
+from forge.tools.search_in_files import search_in_files
+from forge.tools.git_diff import git_diff
+from forge.tools.git_status import git_status
 
 app = typer.Typer(help="Forge — local coding agent")
 
@@ -315,4 +316,21 @@ def diff() -> None:
     """
     console.print(
         git_diff()
+    )
+
+@app.command()
+def replace(
+    path: str,
+    old: str,
+    new: str,
+) -> None:
+    """
+    Replace text in file.
+    """
+    console.print(
+        replace_in_file(
+            path=path,
+            old=old,
+            new=new,
+        )
     )

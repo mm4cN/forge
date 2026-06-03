@@ -116,6 +116,20 @@ Arguments:
 
 None.
 
+### replace_in_file
+
+Replaces text in an existing file.
+
+Arguments:
+
+- `path`: string
+- `old`: string
+- `new`: string
+
+Use this tool when modifying existing files.
+
+Prefer this tool over rewriting entire files.
+
 ## JSON Rules
 
 - Tool calls must contain valid JSON.

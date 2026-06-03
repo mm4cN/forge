@@ -6,6 +6,7 @@ from forge.tools.search_in_files import search_in_files
 from forge.tools.write_file import write_file
 from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
+from forge.tools.replace_in_file import replace_in_file
 
 TOOLS = {
     "find_files": find_files,
@@ -16,6 +17,7 @@ TOOLS = {
     "write_file": write_file,
     "git_status": git_status,
     "git_diff": git_diff,
+    "replace_in_file": replace_in_file,
 }
 
 
