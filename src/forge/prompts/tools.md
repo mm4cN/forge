@@ -34,11 +34,13 @@ I will create the file now.
 
 ### read_file
 
-Reads a text file.
+Reads a file from the workspace.
 
 Arguments:
 
 - `path`: string
+- `start_line`: integer, optional, defaults to `1`
+- `max_lines`: integer, optional, defaults to `200`
 
 ### write_file
 

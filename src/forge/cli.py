@@ -212,12 +212,18 @@ def search(
 @app.command()
 def cat(
     path: str,
+    start_line: int = 1,
+    max_lines: int = 200,
 ) -> None:
     """
     Read file.
     """
     console.print(
-        read_file(path=path)
+        read_file(
+            path=path,
+            start_line=start_line,
+            max_lines=max_lines,
+        )
     )
 
 @app.command()
