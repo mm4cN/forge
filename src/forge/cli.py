@@ -216,3 +216,83 @@ def cat(
     console.print(
         read_file(path=path)
     )
+
+@app.command()
+def chat(
+    model: str | None = typer.Option(
+        None,
+        "--model",
+        "-m",
+        help="Model to use",
+    ),
+    session: str | None = typer.Option(
+        None,
+        "--session",
+        "-s",
+        help="Existing session ID to resume",
+    ),
+) -> None:
+    """
+    Start or resume an interactive agent chat session.
+    """
+    conn = connect()
+    config = load_config()
+
+    selected_model = model or config["default_model"]
+
+    if session is None:
+        session = create_session(
+            conn,
+            title="Interactive Chat",
+        )
+        console.print(f"[green]Started new session:[/green] {session}")
+    else:
+        console.print(f"[green]Resumed session:[/green] {session}")
+
+    console.print(f"[dim]model: {selected_model}[/dim]")
+    console.print(f"[dim]workspace: {get_workspace()}[/dim]")
+    console.print("[dim]Type 'exit', 'quit' or Ctrl+C to leave.[/dim]\n")
+
+    while True:
+        try:
+            prompt = typer.prompt("forge")
+        except KeyboardInterrupt:
+            console.print("\n[dim]bye[/dim]")
+            break
+
+        prompt = prompt.strip()
+
+        if not prompt:
+            continue
+
+        if prompt.lower() in {"exit", "quit"}:
+            console.print("[dim]bye[/dim]")
+            break
+
+        add_message(
+            conn,
+            session,
+            "user",
+            prompt,
+        )
+
+        messages = get_messages(
+            conn,
+            session,
+        )
+
+        answer = run_agent(
+            selected_model,
+            messages,
+        )
+
+        add_message(
+            conn,
+            session,
+            "assistant",
+            answer,
+        )
+
+        console.print()
+        console.print(f"[bold green]Forge:[/bold green]\n{answer}")
+        console.print()
