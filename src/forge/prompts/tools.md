@@ -87,20 +87,24 @@ Implementation preference:
 
 ### search_in_files
 
-Searches for text inside files.
-
-Prefer this tool when you need to find symbols, functions, classes, TODOs, includes, imports, or configuration keys.
+Searches for text in files.
 
 Arguments:
 
-- `query`: string, required
-- `path`: string, optional, defaults to `.`
-- `max_results`: integer, optional, defaults to `100`
+- `query`
+- `path`
+- `max_results`
 
-Implementation preference:
+Example:
 
-- Uses `rg` if available.
-- Falls back to `grep`.
+<tool>
+{
+  "name": "search_in_files",
+  "arguments": {
+    "query": "read_file"
+  }
+}
+</tool>
 
 ### git_status
 
