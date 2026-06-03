@@ -52,3 +52,19 @@ def chat(model: str, messages: list[dict[str, str]]) -> str:
     response.raise_for_status()
 
     return response.json()["message"]["content"]
+
+def list_models() -> list[str]:
+    ensure_running()
+
+    response = requests.get(
+        f"{ollama_url()}/api/tags",
+        timeout=10,
+    )
+    response.raise_for_status()
+
+    data = response.json()
+
+    return [
+        model["name"]
+        for model in data.get("models", [])
+    ]

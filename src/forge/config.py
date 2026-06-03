@@ -25,12 +25,7 @@ def ensure_config() -> None:
     if CONFIG_PATH.exists():
         return
 
-    CONFIG_PATH.write_text(
-        """ollama_url = "http://127.0.0.1:11434"
-default_model = "qwen2.5-coder:7b"
-""",
-        encoding="utf-8",
-    )
+    save_config(DEFAULT_CONFIG)
 
 
 def load_config() -> dict:
@@ -40,3 +35,23 @@ def load_config() -> dict:
         data = tomllib.load(f)
 
     return DEFAULT_CONFIG | data
+
+
+def save_config(config: dict) -> None:
+    ensure_app_dirs()
+
+    content = "\n".join(
+        f'{key} = "{value}"'
+        for key, value in config.items()
+    )
+
+    CONFIG_PATH.write_text(
+        content + "\n",
+        encoding="utf-8",
+    )
+
+
+def set_default_model(model: str) -> None:
+    config = load_config()
+    config["default_model"] = model
+    save_config(config)

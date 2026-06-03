@@ -21,8 +21,12 @@ from forge.tools.read_file import read_file
 from forge.tools.search_in_files import search_in_files
 from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
+from forge.config import load_config, set_default_model
+from forge.ollama import list_models
 
 app = typer.Typer(help="Forge — local coding agent")
+model_app = typer.Typer(help="Manage Ollama models")
+app.add_typer(model_app, name="model")
 
 console = Console()
 
@@ -340,3 +344,38 @@ def replace(
             new=new,
         )
     )
+
+@model_app.command("list")
+def model_list() -> None:
+    """
+    List locally available Ollama models.
+    """
+    models = list_models()
+
+    if not models:
+        console.print("[yellow]No local models found.[/yellow]")
+        return
+
+    current = load_config()["default_model"]
+
+    for model in models:
+        marker = "*" if model == current else " "
+        console.print(f"{marker} {model}")
+
+
+@model_app.command("get")
+def model_get() -> None:
+    """
+    Show current default model.
+    """
+    config = load_config()
+    console.print(config["default_model"])
+
+
+@model_app.command("set")
+def model_set(model: str) -> None:
+    """
+    Set default model.
+    """
+    set_default_model(model)
+    console.print(f"[green]Default model set:[/green] {model}")
