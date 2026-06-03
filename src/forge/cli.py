@@ -1,5 +1,10 @@
 import typer
 
+from forge.tools.find_files import find_files
+from forge.tools.list_directory import list_directory
+from forge.tools.read_file import read_file
+from forge.tools.search_in_files import search_in_files
+
 from rich.console import Console
 from rich.table import Table
 
@@ -159,3 +164,55 @@ def workspace() -> None:
     Show current workspace.
     """
     console.print(get_workspace())
+
+@app.command("ls")
+def ls(
+    path: str = ".",
+) -> None:
+    """
+    List directory contents.
+    """
+    console.print(
+        list_directory(path=path)
+    )
+
+@app.command()
+def find(
+    pattern: str,
+    path: str = ".",
+) -> None:
+    """
+    Find files.
+    """
+    console.print(
+        find_files(
+            pattern=pattern,
+            path=path,
+        )
+    )
+
+@app.command()
+def search(
+    query: str,
+    path: str = ".",
+) -> None:
+    """
+    Search text in files.
+    """
+    console.print(
+        search_in_files(
+            query=query,
+            path=path,
+        )
+    )
+
+@app.command()
+def cat(
+    path: str,
+) -> None:
+    """
+    Read file.
+    """
+    console.print(
+        read_file(path=path)
+    )
