@@ -100,6 +100,22 @@ Implementation preference:
 - Uses `rg` if available.
 - Falls back to `grep`.
 
+### git_status
+
+Shows current git status.
+
+Arguments:
+
+None.
+
+### git_diff
+
+Shows current git diff.
+
+Arguments:
+
+None.
+
 ## JSON Rules
 
 - Tool calls must contain valid JSON.

@@ -4,6 +4,8 @@ from forge.tools.find_files import find_files
 from forge.tools.list_directory import list_directory
 from forge.tools.read_file import read_file
 from forge.tools.search_in_files import search_in_files
+from forge.tools.git_diff import git_diff
+from forge.tools.git_status import git_status
 
 from rich.console import Console
 from rich.table import Table
@@ -296,3 +298,21 @@ def chat(
         console.print()
         console.print(f"[bold green]Forge:[/bold green]\n{answer}")
         console.print()
+
+@app.command()
+def status() -> None:
+    """
+    Show git status.
+    """
+    console.print(
+        git_status()
+    )
+
+@app.command()
+def diff() -> None:
+    """
+    Show git diff.
+    """
+    console.print(
+        git_diff()
+    )

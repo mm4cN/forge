@@ -66,3 +66,9 @@ Correct:
 - Use `search_in_files` when looking for text, symbols, functions, classes, includes, imports, or configuration keys.
 - Prefer search tools before guessing file paths.
 - Prefer reading only the most relevant files after search.
+
+## Git Workflow
+
+- Before modifying an existing project, inspect git status.
+- Use git diff to understand existing changes.
+- Do not assume the workspace is clean.

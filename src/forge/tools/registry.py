@@ -4,7 +4,8 @@ from forge.tools.read_file import read_file
 from forge.tools.run_command import run_command
 from forge.tools.search_in_files import search_in_files
 from forge.tools.write_file import write_file
-
+from forge.tools.git_diff import git_diff
+from forge.tools.git_status import git_status
 
 TOOLS = {
     "find_files": find_files,
@@ -13,6 +14,8 @@ TOOLS = {
     "run_command": run_command,
     "search_in_files": search_in_files,
     "write_file": write_file,
+    "git_status": git_status,
+    "git_diff": git_diff,
 }
 
 
