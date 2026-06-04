@@ -22,7 +22,7 @@ from forge.tools.search_in_files import search_in_files
 from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
 from forge.config import load_config, set_default_model
-from forge.ollama import list_models
+from forge.providers.factory import get_provider
 
 app = typer.Typer(help="Forge — local coding agent")
 model_app = typer.Typer(help="Manage Ollama models")
@@ -350,7 +350,7 @@ def model_list() -> None:
     """
     List locally available Ollama models.
     """
-    models = list_models()
+    models = get_provider().list_models()
 
     if not models:
         console.print("[yellow]No local models found.[/yellow]")

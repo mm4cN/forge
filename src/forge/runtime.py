@@ -1,7 +1,7 @@
 import json
 import re
 
-from forge.ollama import chat
+from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
 
@@ -41,6 +41,7 @@ def run_agent(
     messages: list[dict[str, str]],
     max_steps: int = 8,
 ) -> str:
+    provider = get_provider()
     system_prompt = build_system_prompt()
 
     runtime_messages = [
@@ -52,7 +53,7 @@ def run_agent(
     ]
 
     for _ in range(max_steps):
-        answer = chat(
+        answer = provider.chat(
             model,
             runtime_messages,
         )

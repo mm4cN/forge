@@ -8,10 +8,10 @@ LOG_DIR = APP_DIR / "logs"
 SESSIONS_DIR = APP_DIR / "sessions"
 
 DEFAULT_CONFIG = {
+    "provider": "ollama",
     "ollama_url": "http://127.0.0.1:11434",
     "default_model": "qwen2.5-coder:7b",
 }
-
 
 def ensure_app_dirs() -> None:
     APP_DIR.mkdir(parents=True, exist_ok=True)
