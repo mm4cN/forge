@@ -10,7 +10,6 @@ TOOL_RE = re.compile(
     r"<tool>\s*(\{.*?\})\s*</tool>",
     re.DOTALL,
 )
-FINAL_TOOLS = set()
 
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
@@ -39,7 +38,7 @@ def run_agent(
     max_steps: int = 8,
 ) -> str:
     provider = get_provider()
-    system_prompt = build_system_prompt()
+    system_prompt = build_system_prompt(model)
 
     runtime_messages = [
         {
@@ -92,8 +91,6 @@ def run_agent(
             name,
             arguments,
         )
-        if name in FINAL_TOOLS:
-            return result
 
         runtime_messages.append(
             {

@@ -23,8 +23,6 @@ from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
 from forge.config import load_config, set_default_model, set_model_provider
 from forge.providers.factory import get_provider, list_providers
-from forge.providers.factory import get_provider
-from forge.providers.factory import get_provider, list_providers
 
 app = typer.Typer(help="Forge — local coding agent")
 model_app = typer.Typer(help="Manage Ollama models")
@@ -32,71 +30,75 @@ app.add_typer(model_app, name="model")
 
 console = Console()
 
-
 @app.command()
 def ask(
     prompt: str,
-    model: str | None = typer.Option(
-        None,
-        "--model",
-        "-m",
-        help="Model to use",
-    ),
-    session: str | None = typer.Option(
-        None,
-        "--session",
-        "-s",
-        help="Session ID",
-    ),
+    model: str | None = typer.Option(None, "--model", "-m"),
+    session: str | None = typer.Option(None, "--session", "-s"),
 ) -> None:
     """
-    Ask Forge to perform a task.
+    Ask the model once without tool execution.
     """
     conn = connect()
-
     config = load_config()
-
     selected_model = model or config["default_model"]
 
     if session is None:
-        session = create_session(
-            conn,
-            title=prompt[:64],
-        )
+        session = create_session(conn, title=prompt[:64])
 
-    add_message(
-        conn,
-        session,
-        "user",
-        prompt,
-    )
-
+    add_message(conn, session, "user", prompt)
     messages = get_messages(conn, session)
 
+    provider = get_provider()
+
     try:
-        answer = run_agent(
-            selected_model,
-            messages,
-        )
+        answer = provider.chat(selected_model, messages)
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
 
-    add_message(
-        conn,
-        session,
-        "assistant",
-        answer,
-    )
+    add_message(conn, session, "assistant", answer)
 
     console.print()
     console.print(answer)
     console.print()
-
     console.print(f"[dim]model: {selected_model}[/dim]")
     console.print(f"[dim]session: {session}[/dim]")
     console.print(f"[dim]workspace: {get_workspace()}[/dim]")
 
+@app.command()
+def agent(
+    prompt: str,
+    model: str | None = typer.Option(None, "--model", "-m"),
+    session: str | None = typer.Option(None, "--session", "-s"),
+) -> None:
+    """
+    Run Forge agent with tool execution.
+    """
+    conn = connect()
+    config = load_config()
+    selected_model = model or config["default_model"]
+
+    if session is None:
+        session = create_session(conn, title=prompt[:64])
+
+    add_message(conn, session, "user", prompt)
+    messages = get_messages(conn, session)
+
+    try:
+        answer = run_agent(selected_model, messages)
+    except RuntimeError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(1)
+
+    add_message(conn, session, "assistant", answer)
+
+    console.print()
+    console.print(answer)
+    console.print()
+    console.print(f"[dim]model: {selected_model}[/dim]")
+    console.print(f"[dim]session: {session}[/dim]")
+    console.print(f"[dim]workspace: {get_workspace()}[/dim]")
 
 @app.command()
 def sessions() -> None:

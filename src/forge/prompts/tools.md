@@ -157,3 +157,14 @@ Prefer this tool over rewriting entire files.
 - Do not use ```json fences for tool calls.
 - Do not output a raw JSON object as the final answer when a tool is needed.
 - If you decide to use a tool, your entire response must be exactly one `<tool>` block.
+
+# Tool Calling Contract
+
+A tool call is not a plan.
+A tool call is an action.
+
+If you need to use a tool, your entire response must be exactly one `<tool>` block.
+
+Do not explain that you will use a tool.
+Do not describe the next action in natural language.
+Do not output thoughts, plans, or reasoning before tool calls.
