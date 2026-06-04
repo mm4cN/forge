@@ -3,8 +3,6 @@
   <img src="assets/icon.png" width="256" alt="Forge">
 </p>
 
-<h1 align="center">Forge</h1>
-
 <p align="center">
   Lightweight coding agent for local and hosted LLM workflows.
 </p>
