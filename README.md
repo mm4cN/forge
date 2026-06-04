@@ -1,36 +1,34 @@
 # Forge
 
-Forge is a lightweight local coding agent powered by Ollama.
+Forge is a lightweight coding agent for experimenting with local and hosted LLM-powered development workflows.
 
-It provides a simple CLI for experimenting with local LLM-powered coding workflows, workspace-aware tools, and persistent chat sessions.
+It provides a simple CLI, persistent sessions, workspace-aware tools, and support for multiple model providers.
 
 ## Features
 
-- Local LLM integration through Ollama
+- Multiple model providers
+  - Ollama
+  - Gemini
 - Persistent SQLite-backed sessions
-- Interactive chat mode
-- Workspace-aware file operations
-- File search and content search
+- Agent and non-agent execution modes
+- Interactive chat sessions
+- Workspace-aware tool execution
+- File and code search
 - File reading and writing
+- Text replacement inside files
 - Shell command execution
 - Git status and diff inspection
+- Model usage tracking
 
 ## Requirements
 
 - Python 3.11+
-- Ollama
 
 Recommended tools:
 
 ```bash
 fd
 rg
-```
-
-Recommended model:
-
-```bash
-ollama pull qwen2.5-coder:7b
 ```
 
 ## Installation
@@ -43,58 +41,109 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -e .
+```
 
+### Ollama
+
+Install and start Ollama:
+
+```bash
 ollama serve
+```
+
+Pull a model:
+
+```bash
+ollama pull qwen2.5-coder:7b
+```
+
+### Gemini
+
+Export your API key:
+
+```bash
+export GEMINI_AUTH_KEY="..."
 ```
 
 ## Configuration
 
-Forge stores its data under:
+Forge stores its state under:
 
 ```text
 ~/.forge/
 ```
 
-Example:
+Example configuration:
 
 ```toml
-ollama_url = "http://127.0.0.1:11434"
+provider = "ollama"
 default_model = "qwen2.5-coder:7b"
+ollama_url = "http://127.0.0.1:11434"
 ```
 
 ## Usage
 
-Interactive chat:
+### Simple model call
+
+Single request without tool execution:
+
+```bash
+forge ask "Explain RAII in C++"
+```
+
+### Agent mode
+
+Run the tool-enabled agent loop:
+
+```bash
+forge agent "Find run_agent and explain how tool execution works"
+```
+
+### Interactive chat
 
 ```bash
 forge chat
 ```
 
-Resume session:
+Resume an existing session:
 
 ```bash
 forge chat --session SESSION_ID
 ```
 
-One-shot prompt:
+### Model management
 
 ```bash
-forge ask "Create a hello world application in C++"
+forge model list
+forge model get
+
+forge model use ollama qwen2.5-coder:7b
+forge model use gemini gemini-2.5-flash
 ```
 
-Useful commands:
+### Usage tracking
+
+```bash
+forge usage SESSION_ID
+```
+
+### Workspace tools
 
 ```bash
 forge ls
 forge find runtime
 forge search run_agent
 forge cat src/forge/runtime.py
+```
 
+### Git helpers
+
+```bash
 forge status
 forge diff
 ```
 
-## Current Capabilities
+## Agent Capabilities
 
 The agent can:
 
@@ -109,15 +158,15 @@ The agent can:
 
 ## Limitations
 
-- Tool usage quality depends on the selected model.
-- Small models may describe actions instead of executing tools.
-- Command execution approval is not implemented yet.
+- Tool-calling quality depends on the selected model.
+- Some models are better suited for agent workflows than others.
+- Command approval and sandboxing are not implemented yet.
 
 ## Roadmap
 
-- Safer command execution
-- Tool call logging
 - Session summaries
+- Tool call analytics
+- Safer command execution
 - MCP integration
 - Project-specific prompts
 
