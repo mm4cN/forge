@@ -3,7 +3,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from forge.config import load_config
+from forge.config import load_config, set_approval_mode
 from forge.db import (
     add_message,
     connect,
@@ -519,3 +519,16 @@ def usage(
     )
 
     console.print(table)
+
+
+@app.command("approval")
+def approval(
+    enabled: bool,
+) -> None:
+    """
+    Enable or disable approval mode.
+    """
+    set_approval_mode(enabled)
+
+    state = "enabled" if enabled else "disabled"
+    console.print(f"[green]Approval mode {state}[/green]")

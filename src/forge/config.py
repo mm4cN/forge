@@ -11,6 +11,7 @@ DEFAULT_CONFIG = {
     "provider": "ollama",
     "ollama_url": "http://127.0.0.1:11434",
     "default_model": "qwen2.5-coder:7b",
+    "approval_mode": True,
 }
 
 
@@ -65,4 +66,10 @@ def set_model_provider(provider: str, model: str) -> None:
     config = load_config()
     config["provider"] = provider
     config["default_model"] = model
+    save_config(config)
+
+
+def set_approval_mode(enabled: bool) -> None:
+    config = load_config()
+    config["approval_mode"] = enabled
     save_config(config)

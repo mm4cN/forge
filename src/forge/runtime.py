@@ -1,10 +1,12 @@
 import json
 import re
 
+from forge.approval import ask_for_approval, requires_approval
+from forge.config import load_config
+from forge.db import add_model_call
 from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
-from forge.db import add_model_call
 
 
 TOOL_RE = re.compile(
@@ -77,6 +79,34 @@ def run_agent(
 
         name = tool_call["name"]
         arguments = tool_call.get("arguments", {})
+
+        config = load_config()
+        approval_mode = bool(config.get("approval_mode", True))
+
+        if approval_mode and requires_approval(name):
+            approved = ask_for_approval(
+                tool_name=name,
+                arguments=arguments,
+            )
+
+            if not approved:
+                result = f"ERROR: Tool `{name}` was rejected by the user."
+
+                runtime_messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer,
+                    }
+                )
+
+                runtime_messages.append(
+                    {
+                        "role": "user",
+                        "content": (f"Tool result for `{name}`:\n\n{result}"),
+                    }
+                )
+
+                continue
 
         if name == "__invalid_tool_call__":
             runtime_messages.append(
