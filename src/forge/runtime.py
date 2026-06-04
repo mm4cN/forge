@@ -4,6 +4,7 @@ import re
 from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
+from forge.db import add_model_call
 
 
 TOOL_RE = re.compile(
@@ -36,6 +37,8 @@ def parse_tool_call(text: str) -> dict | None:
 def run_agent(
     model: str,
     messages: list[dict[str, str]],
+    session_id: str | None = None,
+    conn=None,
     max_steps: int = 8,
 ) -> str:
     provider = get_provider()
@@ -56,6 +59,17 @@ def run_agent(
         )
 
         answer = model_response.text
+        if conn is not None and session_id is not None:
+            add_model_call(
+                conn=conn,
+                session_id=session_id,
+                provider=provider.name,
+                model=model,
+                prompt_tokens=model_response.prompt_tokens,
+                completion_tokens=model_response.completion_tokens,
+                total_tokens=model_response.total_tokens,
+                duration_ms=model_response.duration_ms,
+            )
         tool_call = parse_tool_call(answer)
 
         if tool_call is None:

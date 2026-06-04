@@ -3,9 +3,14 @@ import requests
 
 from forge.providers.base import ModelProvider, ModelResponse
 from requests import HTTPError
+import time
 
 
 class GeminiProvider(ModelProvider):
+    @property
+    def name(self) -> str:
+        return "gemini"
+
     def __init__(self) -> None:
         self.api_key = os.environ.get("GEMINI_AUTH_KEY")
 
@@ -73,6 +78,7 @@ class GeminiProvider(ModelProvider):
             },
         }
 
+        started_at = time.perf_counter()
         response = requests.post(
             url,
             params={"key": self.api_key},
@@ -82,6 +88,7 @@ class GeminiProvider(ModelProvider):
         self.__raise_for_status(response)
 
         data = response.json()
+        duration_ms = int((time.perf_counter() - started_at) * 1000)
         usage = data.get("usageMetadata", {})
 
         try:
@@ -94,6 +101,7 @@ class GeminiProvider(ModelProvider):
             prompt_tokens=usage.get("promptTokenCount"),
             completion_tokens=usage.get("candidatesTokenCount"),
             total_tokens=usage.get("totalTokenCount"),
+            duration_ms=duration_ms,
         )
 
     def list_models(self) -> list[str]:

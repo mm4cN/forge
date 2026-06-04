@@ -32,6 +32,19 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL,
             FOREIGN KEY(session_id) REFERENCES sessions(id)
         );
+
+        CREATE TABLE IF NOT EXISTS model_calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            provider TEXT NOT NULL,
+            model TEXT NOT NULL,
+            prompt_tokens INTEGER,
+            completion_tokens INTEGER,
+            total_tokens INTEGER,
+            duration_ms INTEGER,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES sessions(id)
+        );
         """
     )
     conn.commit()
@@ -95,4 +108,64 @@ def list_sessions(conn: sqlite3.Connection) -> list[sqlite3.Row]:
         FROM sessions
         ORDER BY created_at DESC
         """
+    ).fetchall()
+
+
+def add_model_call(
+    conn: sqlite3.Connection,
+    session_id: str,
+    provider: str,
+    model: str,
+    prompt_tokens: int | None,
+    completion_tokens: int | None,
+    total_tokens: int | None,
+    duration_ms: int | None,
+) -> None:
+    conn.execute(
+        """
+        INSERT INTO model_calls(
+            session_id,
+            provider,
+            model,
+            prompt_tokens,
+            completion_tokens,
+            total_tokens,
+            duration_ms,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            session_id,
+            provider,
+            model,
+            prompt_tokens,
+            completion_tokens,
+            total_tokens,
+            duration_ms,
+            datetime.now().isoformat(),
+        ),
+    )
+    conn.commit()
+
+
+def list_model_calls(
+    conn: sqlite3.Connection,
+    session_id: str,
+) -> list[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT
+            provider,
+            model,
+            prompt_tokens,
+            completion_tokens,
+            total_tokens,
+            duration_ms,
+            created_at
+        FROM model_calls
+        WHERE session_id = ?
+        ORDER BY id ASC
+        """,
+        (session_id,),
     ).fetchall()

@@ -8,6 +8,10 @@ from forge.providers.base import ModelProvider, ModelResponse
 
 
 class OllamaProvider(ModelProvider):
+    @property
+    def name(self) -> str:
+        return "ollama"
+
     def __init__(self) -> None:
         self.config = load_config()
 
@@ -49,6 +53,7 @@ class OllamaProvider(ModelProvider):
     ) -> ModelResponse:
         self.ensure_running()
 
+        started_at = time.perf_counter()
         response = requests.post(
             f"{self.ollama_url()}/api/chat",
             json={
@@ -63,11 +68,12 @@ class OllamaProvider(ModelProvider):
             timeout=120,
         )
         response.raise_for_status()
-
         data = response.json()
+        duration_ms = int((time.perf_counter() - started_at) * 1000)
 
         return ModelResponse(
             text=data["message"]["content"],
+            duration_ms=duration_ms,
         )
 
     def list_models(self) -> list[str]:

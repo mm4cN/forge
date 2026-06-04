@@ -10,6 +10,8 @@ from forge.db import (
     create_session,
     get_messages,
     list_sessions,
+    add_model_call,
+    list_model_calls,
 )
 from forge.runtime import run_agent
 from forge.workspace import get_workspace
@@ -55,6 +57,17 @@ def ask(
     try:
         model_response = provider.chat(selected_model, messages)
         answer = model_response.text
+
+        add_model_call(
+            conn=conn,
+            session_id=session,
+            provider=provider.name,
+            model=selected_model,
+            prompt_tokens=model_response.prompt_tokens,
+            completion_tokens=model_response.completion_tokens,
+            total_tokens=model_response.total_tokens,
+            duration_ms=model_response.duration_ms,
+        )
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
@@ -89,7 +102,7 @@ def agent(
     messages = get_messages(conn, session)
 
     try:
-        answer = run_agent(selected_model, messages)
+        answer = run_agent(selected_model, messages, session_id=session, conn=conn)
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
@@ -442,3 +455,66 @@ def model_use(
 
     console.print(f"[green]Provider:[/green] {provider}")
     console.print(f"[green]Default model:[/green] {model}")
+
+@app.command()
+def usage(
+    session: str,
+) -> None:
+    """
+    Show model usage for a session.
+    """
+    conn = connect()
+    rows = list_model_calls(conn, session)
+
+    if not rows:
+        console.print("[yellow]No model calls found for this session.[/yellow]")
+        return
+
+    table = Table(title="Model usage")
+
+    table.add_column("Provider")
+    table.add_column("Model")
+    table.add_column("Prompt")
+    table.add_column("Completion")
+    table.add_column("Total")
+    table.add_column("Duration")
+    table.add_column("Created")
+
+    total_prompt = 0
+    total_completion = 0
+    total_tokens = 0
+    total_duration = 0
+
+    for row in rows:
+        prompt_tokens = row["prompt_tokens"] or 0
+        completion_tokens = row["completion_tokens"] or 0
+        tokens = row["total_tokens"] or 0
+        duration_ms = row["duration_ms"] or 0
+
+        total_prompt += prompt_tokens
+        total_completion += completion_tokens
+        total_tokens += tokens
+        total_duration += duration_ms
+
+        table.add_row(
+            row["provider"],
+            row["model"],
+            str(prompt_tokens) if row["prompt_tokens"] is not None else "-",
+            str(completion_tokens) if row["completion_tokens"] is not None else "-",
+            str(tokens) if row["total_tokens"] is not None else "-",
+            f"{duration_ms} ms" if row["duration_ms"] is not None else "-",
+            row["created_at"],
+        )
+
+    table.add_section()
+    table.add_row(
+        "TOTAL",
+        "",
+        str(total_prompt),
+        str(total_completion),
+        str(total_tokens),
+        f"{total_duration} ms",
+        "",
+    )
+
+    console.print(table)
