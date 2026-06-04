@@ -1,6 +1,13 @@
 # Forge
+<p align="center">
+  <img src="assets/icon.png" width="256" alt="Forge">
+</p>
 
-Forge is a lightweight coding agent for experimenting with local and hosted LLM-powered development workflows.
+<h1 align="center">Forge</h1>
+
+<p align="center">
+  Lightweight coding agent for local and hosted LLM workflows.
+</p>
 
 It provides a simple CLI, persistent sessions, workspace-aware tools, and support for multiple model providers.
 
