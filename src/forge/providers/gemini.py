@@ -1,7 +1,7 @@
 import os
 import requests
 
-from forge.providers.base import ModelProvider
+from forge.providers.base import ModelProvider, ModelResponse
 from requests import HTTPError
 
 
@@ -58,7 +58,7 @@ class GeminiProvider(ModelProvider):
         self,
         model: str,
         messages: list[dict[str, str]],
-    ) -> str:
+    ) -> ModelResponse:
         url = (
             "https://generativelanguage.googleapis.com/v1beta/"
             f"models/{model}:generateContent"
@@ -82,11 +82,19 @@ class GeminiProvider(ModelProvider):
         self.__raise_for_status(response)
 
         data = response.json()
+        usage = data.get("usageMetadata", {})
 
         try:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
         except (KeyError, IndexError) as exc:
             raise RuntimeError(f"Invalid Gemini response: {data}") from exc
+
+        return ModelResponse(
+            text=text,
+            prompt_tokens=usage.get("promptTokenCount"),
+            completion_tokens=usage.get("candidatesTokenCount"),
+            total_tokens=usage.get("totalTokenCount"),
+        )
 
     def list_models(self) -> list[str]:
         url = "https://generativelanguage.googleapis.com/v1beta/models"

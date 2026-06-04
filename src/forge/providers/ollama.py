@@ -4,7 +4,7 @@ import time
 import requests
 
 from forge.config import load_config
-from forge.providers.base import ModelProvider
+from forge.providers.base import ModelProvider, ModelResponse
 
 
 class OllamaProvider(ModelProvider):
@@ -46,7 +46,7 @@ class OllamaProvider(ModelProvider):
         self,
         model: str,
         messages: list[dict[str, str]],
-    ) -> str:
+    ) -> ModelResponse:
         self.ensure_running()
 
         response = requests.post(
@@ -64,7 +64,11 @@ class OllamaProvider(ModelProvider):
         )
         response.raise_for_status()
 
-        return response.json()["message"]["content"]
+        data = response.json()
+
+        return ModelResponse(
+            text=data["message"]["content"],
+        )
 
     def list_models(self) -> list[str]:
         self.ensure_running()

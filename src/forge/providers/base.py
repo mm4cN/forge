@@ -1,4 +1,13 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+
+@dataclass
+class ModelResponse:
+    text: str
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
 
 
 class ModelProvider(ABC):
@@ -7,7 +16,7 @@ class ModelProvider(ABC):
         self,
         model: str,
         messages: list[dict[str, str]],
-    ) -> str:
+    ) -> ModelResponse:
         pass
 
     @abstractmethod

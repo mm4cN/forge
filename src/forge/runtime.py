@@ -50,11 +50,12 @@ def run_agent(
     ]
 
     for _ in range(max_steps):
-        answer = provider.chat(
+        model_response = provider.chat(
             model,
             runtime_messages,
         )
 
+        answer = model_response.text
         tool_call = parse_tool_call(answer)
 
         if tool_call is None:

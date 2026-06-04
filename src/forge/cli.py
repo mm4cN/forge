@@ -53,7 +53,8 @@ def ask(
     provider = get_provider()
 
     try:
-        answer = provider.chat(selected_model, messages)
+        model_response = provider.chat(selected_model, messages)
+        answer = model_response.text
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
