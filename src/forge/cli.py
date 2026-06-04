@@ -23,7 +23,7 @@ from forge.tools.read_file import read_file
 from forge.tools.search_in_files import search_in_files
 from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
-from forge.config import load_config, set_default_model, set_model_provider
+from forge.config import set_default_model, set_model_provider
 from forge.providers.factory import get_provider, list_providers
 
 app = typer.Typer(help="Forge — local coding agent")
@@ -455,6 +455,7 @@ def model_use(
 
     console.print(f"[green]Provider:[/green] {provider}")
     console.print(f"[green]Default model:[/green] {model}")
+
 
 @app.command()
 def usage(
