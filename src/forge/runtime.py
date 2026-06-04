@@ -11,6 +11,7 @@ TOOL_RE = re.compile(
     re.DOTALL,
 )
 
+
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
 
@@ -102,10 +103,7 @@ def run_agent(
         runtime_messages.append(
             {
                 "role": "user",
-                "content": (
-                    f"Tool result for `{name}`:\n\n"
-                    f"{result}"
-                ),
+                "content": (f"Tool result for `{name}`:\n\n{result}"),
             }
         )
 

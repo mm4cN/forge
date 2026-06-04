@@ -21,15 +21,10 @@ def replace_in_file(
     occurrences = content.count(old)
 
     if occurrences == 0:
-        return (
-            f"ERROR: Pattern not found in {path}"
-        )
+        return f"ERROR: Pattern not found in {path}"
 
     if occurrences > 1:
-        return (
-            f"ERROR: Pattern appears "
-            f"{occurrences} times"
-        )
+        return f"ERROR: Pattern appears {occurrences} times"
 
     updated = content.replace(
         old,
@@ -41,7 +36,4 @@ def replace_in_file(
         encoding="utf-8",
     )
 
-    return (
-        f"Replaced {occurrences} occurrence(s) "
-        f"in {path}"
-    )
+    return f"Replaced {occurrences} occurrence(s) in {path}"

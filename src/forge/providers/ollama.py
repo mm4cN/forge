@@ -77,7 +77,4 @@ class OllamaProvider(ModelProvider):
 
         data = response.json()
 
-        return [
-            model["name"]
-            for model in data.get("models", [])
-        ]
+        return [model["name"] for model in data.get("models", [])]

@@ -2,11 +2,8 @@ from importlib.resources import files
 
 
 def load_prompt(name: str) -> str:
-    return (
-        files("forge.prompts")
-        .joinpath(name)
-        .read_text(encoding="utf-8")
-    )
+    return files("forge.prompts").joinpath(name).read_text(encoding="utf-8")
+
 
 def build_system_prompt(model: str | None = None) -> str:
     prompts = [
@@ -22,4 +19,3 @@ def build_system_prompt(model: str | None = None) -> str:
         prompts.append(load_prompt("gemma.md"))
 
     return "\n\n".join(prompts)
-

@@ -1,5 +1,6 @@
 from forge.workspace import resolve_in_workspace
 
+
 def list_directory(
     path: str = ".",
     max_entries: int = 100,

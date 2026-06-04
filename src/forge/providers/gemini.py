@@ -122,9 +122,7 @@ class GeminiProvider(ModelProvider):
         messages: list[dict[str, str]],
     ) -> dict | None:
         system_parts = [
-            message["content"]
-            for message in messages
-            if message["role"] == "system"
+            message["content"] for message in messages if message["role"] == "system"
         ]
 
         if not system_parts:

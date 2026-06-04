@@ -30,6 +30,7 @@ app.add_typer(model_app, name="model")
 
 console = Console()
 
+
 @app.command()
 def ask(
     prompt: str,
@@ -66,6 +67,7 @@ def ask(
     console.print(f"[dim]session: {session}[/dim]")
     console.print(f"[dim]workspace: {get_workspace()}[/dim]")
 
+
 @app.command()
 def agent(
     prompt: str,
@@ -99,6 +101,7 @@ def agent(
     console.print(f"[dim]model: {selected_model}[/dim]")
     console.print(f"[dim]session: {session}[/dim]")
     console.print(f"[dim]workspace: {get_workspace()}[/dim]")
+
 
 @app.command()
 def sessions() -> None:
@@ -144,13 +147,9 @@ def history(
         content = message["content"]
 
         if role == "user":
-            console.print(
-                f"\n[bold cyan]You:[/bold cyan]\n{content}"
-            )
+            console.print(f"\n[bold cyan]You:[/bold cyan]\n{content}")
         else:
-            console.print(
-                f"\n[bold green]Forge:[/bold green]\n{content}"
-            )
+            console.print(f"\n[bold green]Forge:[/bold green]\n{content}")
 
 
 @app.command()
@@ -173,12 +172,14 @@ def config() -> None:
 
     console.print(table)
 
+
 @app.command()
 def workspace() -> None:
     """
     Show current workspace.
     """
     console.print(get_workspace())
+
 
 @app.command("ls")
 def ls(
@@ -187,9 +188,8 @@ def ls(
     """
     List directory contents.
     """
-    console.print(
-        list_directory(path=path)
-    )
+    console.print(list_directory(path=path))
+
 
 @app.command()
 def find(
@@ -206,6 +206,7 @@ def find(
         )
     )
 
+
 @app.command()
 def search(
     query: str,
@@ -220,6 +221,7 @@ def search(
             path=path,
         )
     )
+
 
 @app.command()
 def cat(
@@ -237,6 +239,7 @@ def cat(
             max_lines=max_lines,
         )
     )
+
 
 @app.command()
 def chat(
@@ -318,23 +321,22 @@ def chat(
         console.print(f"[bold green]Forge:[/bold green]\n{answer}")
         console.print()
 
+
 @app.command()
 def status() -> None:
     """
     Show git status.
     """
-    console.print(
-        git_status()
-    )
+    console.print(git_status())
+
 
 @app.command()
 def diff() -> None:
     """
     Show git diff.
     """
-    console.print(
-        git_diff()
-    )
+    console.print(git_diff())
+
 
 @app.command()
 def replace(
@@ -352,6 +354,7 @@ def replace(
             new=new,
         )
     )
+
 
 @model_app.command("list")
 def model_list() -> None:
@@ -388,6 +391,7 @@ def model_set(model: str) -> None:
     set_default_model(model)
     console.print(f"[green]Default model set:[/green] {model}")
 
+
 @model_app.command("providers")
 def model_providers() -> None:
     """
@@ -398,6 +402,7 @@ def model_providers() -> None:
     for provider in list_providers():
         marker = "*" if provider == current else " "
         console.print(f"{marker} {provider}")
+
 
 @model_app.command("provider-get")
 def provider_get() -> None:
@@ -412,6 +417,7 @@ def provider_get() -> None:
             "ollama",
         )
     )
+
 
 @model_app.command("use")
 def model_use(

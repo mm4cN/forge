@@ -13,6 +13,7 @@ DEFAULT_CONFIG = {
     "default_model": "qwen2.5-coder:7b",
 }
 
+
 def ensure_app_dirs() -> None:
     APP_DIR.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -40,15 +41,13 @@ def load_config() -> dict:
 def save_config(config: dict) -> None:
     ensure_app_dirs()
 
-    content = "\n".join(
-        f'{key} = "{value}"'
-        for key, value in config.items()
-    )
+    content = "\n".join(f'{key} = "{value}"' for key, value in config.items())
 
     CONFIG_PATH.write_text(
         content + "\n",
         encoding="utf-8",
     )
+
 
 def set_provider(provider: str) -> None:
     config = load_config()

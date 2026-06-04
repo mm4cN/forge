@@ -40,8 +40,6 @@ def read_file(
         selected_lines,
         start=start_line,
     ):
-        result.append(
-            f"{idx:>6}: {line}"
-        )
+        result.append(f"{idx:>6}: {line}")
 
     return "\n".join(result)

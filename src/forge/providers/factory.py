@@ -25,8 +25,7 @@ def get_provider() -> ModelProvider:
         available = ", ".join(sorted(PROVIDERS))
 
         raise ValueError(
-            f"Unknown model provider: {provider_name}. "
-            f"Available providers: {available}"
+            f"Unknown model provider: {provider_name}. Available providers: {available}"
         ) from exc
 
     return provider_factory()
