@@ -50,8 +50,20 @@ def save_config(config: dict) -> None:
         encoding="utf-8",
     )
 
+def set_provider(provider: str) -> None:
+    config = load_config()
+    config["provider"] = provider
+    save_config(config)
+
 
 def set_default_model(model: str) -> None:
     config = load_config()
+    config["default_model"] = model
+    save_config(config)
+
+
+def set_model_provider(provider: str, model: str) -> None:
+    config = load_config()
+    config["provider"] = provider
     config["default_model"] = model
     save_config(config)

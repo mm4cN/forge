@@ -21,8 +21,10 @@ from forge.tools.read_file import read_file
 from forge.tools.search_in_files import search_in_files
 from forge.tools.git_diff import git_diff
 from forge.tools.git_status import git_status
-from forge.config import load_config, set_default_model
+from forge.config import load_config, set_default_model, set_model_provider
+from forge.providers.factory import get_provider, list_providers
 from forge.providers.factory import get_provider
+from forge.providers.factory import get_provider, list_providers
 
 app = typer.Typer(help="Forge — local coding agent")
 model_app = typer.Typer(help="Manage Ollama models")
@@ -71,10 +73,14 @@ def ask(
 
     messages = get_messages(conn, session)
 
-    answer = run_agent(
-        selected_model,
-        messages,
-    )
+    try:
+        answer = run_agent(
+            selected_model,
+            messages,
+        )
+    except RuntimeError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(1)
 
     add_message(
         conn,
@@ -379,3 +385,51 @@ def model_set(model: str) -> None:
     """
     set_default_model(model)
     console.print(f"[green]Default model set:[/green] {model}")
+
+@model_app.command("providers")
+def model_providers() -> None:
+    """
+    List available model providers.
+    """
+    current = load_config().get("provider", "ollama")
+
+    for provider in list_providers():
+        marker = "*" if provider == current else " "
+        console.print(f"{marker} {provider}")
+
+@model_app.command("provider-get")
+def provider_get() -> None:
+    """
+    Show current provider.
+    """
+    config = load_config()
+
+    console.print(
+        config.get(
+            "provider",
+            "ollama",
+        )
+    )
+
+@model_app.command("use")
+def model_use(
+    provider: str,
+    model: str,
+) -> None:
+    """
+    Set provider and default model.
+    """
+    available = list_providers()
+
+    if provider not in available:
+        console.print(f"[red]Unknown provider:[/red] {provider}")
+        console.print(f"Available: {', '.join(available)}")
+        raise typer.Exit(1)
+
+    set_model_provider(
+        provider=provider,
+        model=model,
+    )
+
+    console.print(f"[green]Provider:[/green] {provider}")
+    console.print(f"[green]Default model:[/green] {model}")

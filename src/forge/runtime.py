@@ -10,10 +10,7 @@ TOOL_RE = re.compile(
     r"<tool>\s*(\{.*?\})\s*</tool>",
     re.DOTALL,
 )
-FINAL_TOOLS = {
-    "find_files",
-    "search_in_files",
-}
+FINAL_TOOLS = set()
 
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
