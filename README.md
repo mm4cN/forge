@@ -1,4 +1,5 @@
 # Forge
+
 <p align="center">
   <img src="assets/icon.png" width="256" alt="Forge">
 </p>
@@ -7,7 +8,19 @@
   Lightweight coding agent for local and hosted LLM workflows.
 </p>
 
-It provides a simple CLI, persistent sessions, workspace-aware tools, and support for multiple model providers.
+Forge provides a simple CLI, persistent sessions, workspace-aware tools, and support for multiple model providers.
+
+## Why Forge?
+
+Forge focuses on:
+
+- Provider independence
+- Transparent tool execution
+- Local-first workflows
+- Lightweight architecture
+- Hackability
+
+It aims to provide a simple alternative to larger coding assistants while remaining easy to understand and extend.
 
 ## Features
 
@@ -24,6 +37,8 @@ It provides a simple CLI, persistent sessions, workspace-aware tools, and suppor
 - Shell command execution
 - Git status and diff inspection
 - Model usage tracking
+- Tool execution tracking
+- Approval mode for potentially destructive actions
 
 ## Requirements
 
@@ -84,6 +99,60 @@ Example configuration:
 provider = "ollama"
 default_model = "qwen2.5-coder:7b"
 ollama_url = "http://127.0.0.1:11434"
+approval_mode = true
+```
+
+## Architecture
+
+```text
+CLI
+ ↓
+Runtime
+ ↓
+Provider
+ ├── Ollama
+ └── Gemini
+
+Runtime
+ ↓
+Tools
+ ├── read_file
+ ├── write_file
+ ├── search_in_files
+ ├── run_command
+ └── ...
+
+Runtime
+ ↓
+SQLite
+ ├── sessions
+ ├── messages
+ ├── model_calls
+ └── tool_calls
+```
+
+## Safety
+
+Forge requires confirmation before executing potentially destructive actions.
+
+Protected tools:
+
+- write_file
+- replace_in_file
+- run_command
+
+Example:
+
+```text
+Tool approval required: write_file
+Approve? (y/N):
+```
+
+Approval mode can be enabled or disabled:
+
+```bash
+forge approval true
+forge approval false
 ```
 
 ## Usage
@@ -126,10 +195,18 @@ forge model use ollama qwen2.5-coder:7b
 forge model use gemini gemini-2.5-flash
 ```
 
-### Usage tracking
+### Session tracking
+
+Model usage:
 
 ```bash
 forge usage SESSION_ID
+```
+
+Tool execution history:
+
+```bash
+forge tools SESSION_ID
 ```
 
 ### Workspace tools
@@ -148,6 +225,20 @@ forge status
 forge diff
 ```
 
+## Example
+
+```bash
+forge agent \
+  "Create a basic CMake project and build it"
+```
+
+Forge will:
+
+1. Create the required files
+2. Ask for approval before modifying files
+3. Execute build commands
+4. Report the result
+
 ## Agent Capabilities
 
 The agent can:
@@ -165,13 +256,14 @@ The agent can:
 
 - Tool-calling quality depends on the selected model.
 - Some models are better suited for agent workflows than others.
-- Command approval and sandboxing are not implemented yet.
+- Commands are executed on the host system.
+- Full sandboxing is not implemented.
 
 ## Roadmap
 
 - Session summaries
-- Tool call analytics
-- Safer command execution
+- Tool call search
+- OpenRouter provider
 - MCP integration
 - Project-specific prompts
 
