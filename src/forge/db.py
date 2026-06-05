@@ -1,6 +1,7 @@
 import sqlite3
 import uuid
 from datetime import datetime
+import json
 
 from forge.config import DB_PATH, ensure_app_dirs
 
@@ -42,6 +43,16 @@ def init_db(conn: sqlite3.Connection) -> None:
             completion_tokens INTEGER,
             total_tokens INTEGER,
             duration_ms INTEGER,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES sessions(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS tool_calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            tool_name TEXT NOT NULL,
+            arguments TEXT NOT NULL,
+            result TEXT NOT NULL,
             created_at TEXT NOT NULL,
             FOREIGN KEY(session_id) REFERENCES sessions(id)
         );
@@ -164,6 +175,55 @@ def list_model_calls(
             duration_ms,
             created_at
         FROM model_calls
+        WHERE session_id = ?
+        ORDER BY id ASC
+        """,
+        (session_id,),
+    ).fetchall()
+
+
+def add_tool_call(
+    conn: sqlite3.Connection,
+    session_id: str,
+    tool_name: str,
+    arguments: dict,
+    result: str,
+) -> None:
+    conn.execute(
+        """
+        INSERT INTO tool_calls(
+            session_id,
+            tool_name,
+            arguments,
+            result,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            session_id,
+            tool_name,
+            json.dumps(arguments, ensure_ascii=False),
+            result,
+            datetime.now().isoformat(),
+        ),
+    )
+    conn.commit()
+
+
+def list_tool_calls(
+    conn: sqlite3.Connection,
+    session_id: str,
+) -> list[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT
+            id,
+            tool_name,
+            arguments,
+            result,
+            created_at
+        FROM tool_calls
         WHERE session_id = ?
         ORDER BY id ASC
         """,

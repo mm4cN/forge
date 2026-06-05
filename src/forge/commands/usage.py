@@ -1,9 +1,10 @@
 import typer
+import json
 
 from rich.console import Console
 from rich.table import Table
 
-from forge.db import connect, list_model_calls
+from forge.db import connect, list_model_calls, list_tool_calls
 
 console = Console()
 
@@ -69,5 +70,52 @@ def register_usage_commands(app: typer.Typer) -> None:
             f"{total_duration} ms",
             "",
         )
+
+        console.print(table)
+
+    @app.command("tools")
+    def tools(
+        session: str,
+    ) -> None:
+        """
+        Show tool calls for a session.
+        """
+        conn = connect()
+        rows = list_tool_calls(conn, session)
+
+        if not rows:
+            console.print("[yellow]No tool calls found for this session.[/yellow]")
+            return
+
+        table = Table(title="Tool calls")
+
+        table.add_column("#")
+        table.add_column("Tool")
+        table.add_column("Arguments")
+        table.add_column("Result")
+        table.add_column("Created")
+
+        for row in rows:
+            try:
+                arguments = json.dumps(
+                    json.loads(row["arguments"]),
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            except json.JSONDecodeError:
+                arguments = row["arguments"]
+
+            result = row["result"]
+
+            if len(result) > 500:
+                result = result[:500] + "\n..."
+
+            table.add_row(
+                str(row["id"]),
+                row["tool_name"],
+                arguments,
+                result,
+                row["created_at"],
+            )
 
         console.print(table)

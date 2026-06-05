@@ -3,7 +3,7 @@ import re
 
 from forge.approval import ask_for_approval, requires_approval
 from forge.config import load_config
-from forge.db import add_model_call
+from forge.db import add_model_call, add_tool_call
 from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
@@ -137,6 +137,14 @@ def run_agent(
             name,
             arguments,
         )
+        if conn is not None and session_id is not None:
+            add_tool_call(
+                conn=conn,
+                session_id=session_id,
+                tool_name=name,
+                arguments=arguments,
+                result=result,
+            )
 
         runtime_messages.append(
             {
