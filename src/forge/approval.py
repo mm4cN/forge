@@ -7,6 +7,7 @@ APPROVAL_REQUIRED_TOOLS = {
     "run_command",
     "write_file",
     "replace_in_file",
+    "edit_file",
 }
 
 

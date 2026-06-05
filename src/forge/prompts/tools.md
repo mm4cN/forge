@@ -168,3 +168,17 @@ If you need to use a tool, your entire response must be exactly one `<tool>` blo
 Do not explain that you will use a tool.
 Do not describe the next action in natural language.
 Do not output thoughts, plans, or reasoning before tool calls.
+
+### edit_file
+
+Replaces the full content of an existing file and returns a unified diff.
+
+Arguments:
+
+- `path`: string
+- `content`: string
+
+Use this tool when modifying an existing file and you can provide the complete updated file content.
+
+Prefer `replace_in_file` for small exact replacements.
+Prefer `edit_file` for broader edits.

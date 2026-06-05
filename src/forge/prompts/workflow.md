@@ -90,3 +90,10 @@ Correct:
 - If the user asks to find a function, class, symbol, or implementation, use `search_in_files`.
 - If the user asks to find a file by name, use `find_files`.
 - For "find implementation of X", use `search_in_files` with `query` set to `X`.
+
+## Editing Files
+
+- Use `replace_in_file` for small, exact replacements.
+- Use `edit_file` when a file needs broader changes.
+- Before using `edit_file`, read the file first.
+- Do not use `write_file` to modify existing files.
