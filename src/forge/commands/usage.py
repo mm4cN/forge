@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from forge.db import connect, list_model_calls, list_tool_calls
+from forge.metrics import tokens_per_second
 
 console = Console()
 
@@ -32,6 +33,7 @@ def register_usage_commands(app: typer.Typer) -> None:
         table.add_column("Completion")
         table.add_column("Total")
         table.add_column("Duration")
+        table.add_column("Tok/s")
         table.add_column("Created")
 
         total_prompt = 0
@@ -50,6 +52,11 @@ def register_usage_commands(app: typer.Typer) -> None:
             total_tokens += tokens
             total_duration += duration_ms
 
+            tps = tokens_per_second(
+                tokens,
+                duration_ms,
+            )
+
             table.add_row(
                 row["provider"],
                 row["model"],
@@ -57,8 +64,13 @@ def register_usage_commands(app: typer.Typer) -> None:
                 str(completion_tokens) if row["completion_tokens"] is not None else "-",
                 str(tokens) if row["total_tokens"] is not None else "-",
                 f"{duration_ms} ms" if row["duration_ms"] is not None else "-",
+                f"{tps:.1f}" if tps is not None else "-",
                 row["created_at"],
             )
+        avg_tps = tokens_per_second(
+            total_tokens,
+            total_duration,
+        )
 
         table.add_section()
         table.add_row(
@@ -68,6 +80,7 @@ def register_usage_commands(app: typer.Typer) -> None:
             str(total_completion),
             str(total_tokens),
             f"{total_duration} ms",
+            f"{avg_tps:.1f}" if avg_tps is not None else "-",
             "",
         )
 

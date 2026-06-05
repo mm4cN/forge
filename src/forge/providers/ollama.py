@@ -69,10 +69,20 @@ class OllamaProvider(ModelProvider):
         )
         response.raise_for_status()
         data = response.json()
+
         duration_ms = int((time.perf_counter() - started_at) * 1000)
+        prompt_tokens = data.get("prompt_eval_count")
+        completion_tokens = data.get("eval_count")
+
+        total_tokens = None
+        if prompt_tokens is not None and completion_tokens is not None:
+            total_tokens = prompt_tokens + completion_tokens
 
         return ModelResponse(
             text=data["message"]["content"],
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=total_tokens,
             duration_ms=duration_ms,
         )
 
