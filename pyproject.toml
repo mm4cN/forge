@@ -4,7 +4,7 @@ authors = [
   { name = "mm4cN" }
 ]
 name = "forge"
-version = "0.1.0"
+version = "1.0.0"
 description = "Local LLM forge CLI using Ollama"
 requires-python = ">=3.11"
 dependencies = [

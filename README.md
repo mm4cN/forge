@@ -8,48 +8,21 @@
   Lightweight coding agent for local and hosted LLM workflows.
 </p>
 
-Forge provides a simple CLI, persistent sessions, workspace-aware tools, and support for multiple model providers.
-
-## Why Forge?
-
-Forge focuses on:
-
-- Provider independence
-- Transparent tool execution
-- Local-first workflows
-- Lightweight architecture
-- Hackability
-
-It aims to provide a simple alternative to larger coding assistants while remaining easy to understand and extend.
+Forge is a local-first coding agent with workspace-aware tools, persistent sessions, and support for multiple model providers.
 
 ## Features
 
-- Multiple model providers
+- Multiple providers
   - Ollama
   - Gemini
-- Persistent SQLite-backed sessions
-- Agent and non-agent execution modes
-- Interactive chat sessions
-- Workspace-aware tool execution
-- File and code search
-- File reading and writing
-- Text replacement inside files
+- Persistent sessions
+- Interactive chat
+- Agent mode with tool execution
+- File search and editing
 - Shell command execution
-- Git status and diff inspection
-- Model usage tracking
-- Tool execution tracking
-- Approval mode for potentially destructive actions
-
-## Requirements
-
-- Python 3.11+
-
-Recommended tools:
-
-```bash
-fd
-rg
-```
+- Git integration
+- Usage and tool-call tracking
+- Approval mode for destructive actions
 
 ## Installation
 
@@ -65,127 +38,39 @@ pip install -e .
 
 ### Ollama
 
-Install and start Ollama:
-
 ```bash
 ollama serve
-```
-
-Pull a model:
-
-```bash
 ollama pull qwen2.5-coder:7b
 ```
 
 ### Gemini
 
-Export your API key:
-
 ```bash
 export GEMINI_AUTH_KEY="..."
 ```
 
-## Configuration
+## Quick Start
 
-Forge stores its state under:
-
-```text
-~/.forge/
-```
-
-Example configuration:
-
-```toml
-provider = "ollama"
-default_model = "qwen2.5-coder:7b"
-ollama_url = "http://127.0.0.1:11434"
-approval_mode = true
-```
-
-## Architecture
-
-```text
-CLI
- ↓
-Runtime
- ↓
-Provider
- ├── Ollama
- └── Gemini
-
-Runtime
- ↓
-Tools
- ├── read_file
- ├── write_file
- ├── search_in_files
- ├── run_command
- └── ...
-
-Runtime
- ↓
-SQLite
- ├── sessions
- ├── messages
- ├── model_calls
- └── tool_calls
-```
-
-## Safety
-
-Forge requires confirmation before executing potentially destructive actions.
-
-Protected tools:
-
-- write_file
-- replace_in_file
-- run_command
-
-Example:
-
-```text
-Tool approval required: write_file
-Approve? (y/N):
-```
-
-Approval mode can be enabled or disabled:
-
-```bash
-forge approval true
-forge approval false
-```
-
-## Usage
-
-### Simple model call
-
-Single request without tool execution:
+Simple prompt:
 
 ```bash
 forge ask "Explain RAII in C++"
 ```
 
-### Agent mode
-
-Run the tool-enabled agent loop:
+Run the agent:
 
 ```bash
-forge agent "Find run_agent and explain how tool execution works"
+forge agent \
+  "Create a basic CMake project and build it"
 ```
 
-### Interactive chat
+Interactive chat:
 
 ```bash
 forge chat
 ```
 
-Resume an existing session:
-
-```bash
-forge chat --session SESSION_ID
-```
-
-### Model management
+## Model Management
 
 ```bash
 forge model list
@@ -195,7 +80,7 @@ forge model use ollama qwen2.5-coder:7b
 forge model use gemini gemini-2.5-flash
 ```
 
-### Session tracking
+## Session Tracking
 
 Model usage:
 
@@ -209,63 +94,46 @@ Tool execution history:
 forge tools SESSION_ID
 ```
 
-### Workspace tools
+## Safety
 
-```bash
-forge ls
-forge find runtime
-forge search run_agent
-forge cat src/forge/runtime.py
+Forge requires confirmation before executing potentially destructive actions.
+
+Protected tools:
+
+- write_file
+- edit_file
+- replace_in_file
+- run_command
+
+```text
+Tool approval required: write_file
+Approve? (y/N):
 ```
 
-### Git helpers
+## Configuration
 
-```bash
-forge status
-forge diff
+Forge stores its state in:
+
+```text
+~/.forge/
 ```
 
-## Example
+Example:
 
-```bash
-forge agent \
-  "Create a basic CMake project and build it"
+```toml
+provider = "ollama"
+default_model = "qwen2.5-coder:7b"
+approval_mode = true
 ```
-
-Forge will:
-
-1. Create the required files
-2. Ask for approval before modifying files
-3. Execute build commands
-4. Report the result
-
-## Agent Capabilities
-
-The agent can:
-
-- Inspect directories
-- Find files
-- Search file contents
-- Read files
-- Write files
-- Replace text in files
-- Execute shell commands
-- Inspect Git status and diffs
-
-## Limitations
-
-- Tool-calling quality depends on the selected model.
-- Some models are better suited for agent workflows than others.
-- Commands are executed on the host system.
-- Full sandboxing is not implemented.
 
 ## Roadmap
 
-- Session summaries
-- Tool call search
+- Project memory
+- Approval diff preview
 - OpenRouter provider
-- MCP integration
-- Project-specific prompts
+- Session summaries
+- Context builder
+- Neovim plugin
 
 ## License
 
