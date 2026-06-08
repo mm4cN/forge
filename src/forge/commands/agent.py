@@ -4,35 +4,13 @@ from rich.console import Console
 
 from forge.db import add_message, connect, create_session, get_messages, add_model_call
 from forge.config import load_config
-from forge.metrics import tokens_per_second
 from forge.providers.factory import get_provider
 from forge.runtime import run_agent
 from forge.workspace import get_workspace
+from forge.output import print_footer
 
 app = typer.Typer()
 console = Console()
-
-
-def print_footer(
-    model: str,
-    session: str,
-    total_tokens: int | None = None,
-    duration_ms: int | None = None,
-) -> None:
-    console.print(f"[dim]model: {model}[/dim]")
-    console.print(f"[dim]session: {session}[/dim]")
-    console.print(f"[dim]workspace: {get_workspace()}[/dim]")
-
-    if duration_ms is not None:
-        console.print(f"[dim]duration: {duration_ms} ms[/dim]")
-
-    tps = tokens_per_second(
-        total_tokens,
-        duration_ms,
-    )
-
-    if tps is not None:
-        console.print(f"[dim]throughput: {tps:.1f} tok/s[/dim]")
 
 
 def ensure_session(
