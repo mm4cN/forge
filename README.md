@@ -8,20 +8,23 @@
   Lightweight coding agent for local and hosted LLM workflows.
 </p>
 
-Forge is a local-first coding agent with workspace-aware tools, persistent sessions, and support for multiple model providers.
+Forge is a local-first coding assistant designed for developers who want transparent tool execution, persistent sessions, and full control over their workflow.
 
 ## Features
 
 - Multiple providers
   - Ollama
   - Gemini
-- Persistent sessions
-- Interactive chat
-- Agent mode with tool execution
+- Agent and non-agent modes
+- Interactive chat sessions
+- Persistent SQLite-backed history
+- Workspace-aware tools
 - File search and editing
 - Shell command execution
 - Git integration
-- Usage and tool-call tracking
+- Code review command
+- Model usage tracking
+- Tool execution tracking
 - Approval mode for destructive actions
 
 ## Installation
@@ -51,7 +54,7 @@ export GEMINI_AUTH_KEY="..."
 
 ## Quick Start
 
-Simple prompt:
+Ask a model:
 
 ```bash
 forge ask "Explain RAII in C++"
@@ -70,6 +73,12 @@ Interactive chat:
 forge chat
 ```
 
+Review current changes:
+
+```bash
+forge review
+```
+
 ## Model Management
 
 ```bash
@@ -80,7 +89,7 @@ forge model use ollama qwen2.5-coder:7b
 forge model use gemini gemini-2.5-flash
 ```
 
-## Session Tracking
+## Tracking
 
 Model usage:
 
@@ -105,14 +114,23 @@ Protected tools:
 - replace_in_file
 - run_command
 
+Example:
+
 ```text
 Tool approval required: write_file
 Approve? (y/N):
 ```
 
+Enable or disable approval mode:
+
+```bash
+forge approval true
+forge approval false
+```
+
 ## Configuration
 
-Forge stores its state in:
+Forge stores its state under:
 
 ```text
 ~/.forge/
