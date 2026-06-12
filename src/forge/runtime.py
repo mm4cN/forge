@@ -9,6 +9,7 @@ from forge.db import add_model_call, add_tool_call
 from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
+from forge.project_memory import build_project_memory_prompt, sync_project_memory
 
 TOOL_RE = re.compile(
     r"<tool>\s*(\{.*?\})\s*</tool>",
@@ -48,15 +49,26 @@ def run_agent(
     show_steps: bool = False,
 ) -> str:
     provider = get_provider()
-    system_prompt = build_system_prompt(model)
+    system_prompt = build_system_prompt()
+
+    project_memory = None
+    if conn is not None:
+        project_memory = sync_project_memory(conn)
 
     runtime_messages = [
         {
             "role": "system",
             "content": system_prompt,
         },
-        *messages,
     ]
+    if project_memory is not None:
+        runtime_messages.append(
+            {
+                "role": "system",
+                "content": build_project_memory_prompt(project_memory),
+            }
+        )
+    runtime_messages.extend(messages)
 
     invalid_tool_calls = 0
 

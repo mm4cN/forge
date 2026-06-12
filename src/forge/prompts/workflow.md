@@ -1,109 +1,46 @@
 # Workflow Rules
 
-## Files
-
-- If a file does not exist yet, use `write_file` before `read_file`.
-- Do not read files you have just been asked to create unless you have created them first.
-
-## Build Tasks
-
-For tasks like "create, compile and run", the expected order is:
-
-1. `write_file`
-2. `run_command` to compile
-3. `run_command` to execute
-
-## Error Handling
-
-- If a tool returns `ERROR`, fix the issue and continue.
-- Never stop after the first tool failure.
-- Investigate the error and try again.
-
-## Agent Loop
+## General
 
 - Solve the user's task completely.
-- Do not stop after creating files.
-- Do not stop after compilation.
-- Continue until the requested result is achieved.
+- Prefer fewer tool calls.
+- Do not inspect more files than necessary.
+- If enough information is available, act.
 
-## Project Inspection
+## Tool Use
 
-- Before modifying an existing project, inspect the workspace with `list_directory`.
-- Use `list_directory` to discover files before reading them.
-- Do not guess project structure when a tool can inspect it.
+Use tools when the task requires:
+- reading files
+- modifying files
+- running commands
+- inspecting current repository state
 
-## Mandatory Tool Usage
+If the user provides exact file paths, read those files directly.
+Do not call `list_directory` first unless the paths fail or are ambiguous.
 
-When the user asks to:
+## Files
 
-- create a file
-- modify a file
-- read a file
-- compile code
-- execute code
-- inspect a directory
-
-you MUST use tools.
-
-You are not allowed to claim that an action was completed unless a tool was executed successfully.
-
-Incorrect:
-
-"The file was created successfully."
-
-Correct:
-
-<tool>
-{
-  "name": "write_file",
-  ...
-}
-</tool>
-
-## Search Workflow
-
-- Use `find_files` when looking for files by name.
-- Use `search_in_files` when looking for text, symbols, functions, classes, includes, imports, or configuration keys.
-- Prefer search tools before guessing file paths.
-- Prefer reading only the most relevant files after search.
-
-## Git Workflow
-
-- Before modifying an existing project, inspect git status.
-- Use git diff to understand existing changes.
-- Do not assume the workspace is clean.
-
-## File Modification
-
-- Prefer `replace_in_file` when changing existing files.
-- Do not rewrite an entire file when a small modification is sufficient.
-- Use `read_file` first if you need context.
-
-## Large Files
-
-- Prefer reading files in chunks.
-- Use read_file with start_line and max_lines when inspecting large files.
-- Avoid reading entire files when only a small section is needed.
-
-## Finding Code
-
-- If the user asks to find a function, class, symbol, or implementation, use `search_in_files`.
-- If the user asks to find a file by name, use `find_files`.
-- For "find implementation of X", use `search_in_files` with `query` set to `X`.
-
-## Editing Files
-
-- Use `replace_in_file` for small, exact replacements.
-- Use `edit_file` when a file needs broader changes.
-- Before using `edit_file`, read the file first.
+- Use `read_file` before modifying an existing file.
+- Use `write_file` only for new files.
+- Use `replace_in_file` for small exact edits.
+- Use `edit_file` for broader edits.
 - Do not use `write_file` to modify existing files.
 
-## Rejected Tools
+## Search
 
-If a tool call is rejected by the user, do not retry the same change.
-Treat rejection as a signal that the proposed action was incorrect or unwanted.
+- Use `search_in_files` for functions, symbols, text and configuration keys.
+- Use `find_files` for file names or patterns.
+- Read only the most relevant files after search.
 
-After a rejection:
-- explain what was rejected
-- ask for clarification if needed
-- do not continue editing unless the user explicitly asked for another attempt
+## Build and Run
+
+For create/build/run tasks:
+1. create or edit files
+2. run the build command
+3. run the resulting program or relevant check
+
+## Errors
+
+- If a tool returns `ERROR`, inspect the cause and try one focused fix.
+- Do not repeat the same failed action.
+- If a tool is rejected by the user, stop the current task.

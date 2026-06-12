@@ -1,184 +1,97 @@
 # Tool Calling
 
-When you need to use a tool, respond with exactly one `<tool>` block.
+When a tool is needed, respond with exactly one `<tool>` block and nothing else.
 
-The response must contain no Markdown, no explanation, and no fenced code block.
-
-Correct:
+Format:
 
 <tool>
 {
-  "name": "write_file",
+  "name": "tool_name",
   "arguments": {
-    "path": "hello.cpp",
-    "content": "..."
+    "key": "value"
   }
 }
 </tool>
 
-Incorrect:
+Rules:
 
-I will create the file now.
+- Tool calls must be valid JSON.
+- Use double quotes.
+- Do not use Markdown inside `<tool>`.
+- Do not add explanation before or after a tool call.
+- A tool call is an action, not a plan.
 
-<tool>
-{
-  "name": "write_file",
-  "arguments": {
-    "path": "hello.cpp",
-    "content": "..."
-  }
-}
-</tool>
-
-## Available Tools
+## Tools
 
 ### read_file
-
-Reads a file from the workspace.
+Read a file.
 
 Arguments:
-
 - `path`: string
-- `start_line`: integer, optional, defaults to `1`
-- `max_lines`: integer, optional, defaults to `200`
+- `start_line`: integer, optional
+- `max_lines`: integer, optional
 
 ### write_file
-
-Creates or overwrites a text file.
+Create or overwrite a file.
 
 Arguments:
-
 - `path`: string
 - `content`: string
 
-### run_command
-
-Runs a shell command in the current working directory.
-
-Arguments:
-
-- `command`: string
-
-### list_directory
-
-Lists files and directories in a directory.
+### edit_file
+Replace full content of an existing file.
 
 Arguments:
+- `path`: string
+- `content`: string
 
-- `path`: string, optional, defaults to `"."`
-- `max_entries`: integer, optional, defaults to `100`
-
-### find_files
-
-Finds files by name or glob-like pattern.
-
-Arguments:
-
-- `pattern`: string, required
-- `path`: string, optional, defaults to `.`
-- `max_results`: integer, optional, defaults to `100`
-
-Example:
-
-<tool>
-{
-  "name": "find_files",
-  "arguments": {
-    "pattern": "runtime",
-    "path": "."
-  }
-}
-</tool>
-
-### search_in_files
-
-Searches for text in files.
-
-Arguments:
-
-- `query`
-- `path`
-- `max_results`
-
-Example:
-
-<tool>
-{
-  "name": "search_in_files",
-  "arguments": {
-    "query": "read_file"
-  }
-}
-</tool>
-
-### git_status
-
-Shows current git status.
-
-Arguments:
-
-None.
-
-### git_diff
-
-Shows current git diff.
-
-Arguments:
-
-None.
+Use after reading the file first.
 
 ### replace_in_file
-
-Replaces text in an existing file.
+Replace exact text in an existing file.
 
 Arguments:
-
 - `path`: string
 - `old`: string
 - `new`: string
 
-Use this tool when modifying existing files.
+Use for small exact edits.
 
-Prefer this tool over rewriting entire files.
-
-## JSON Rules
-
-- Tool calls must contain valid JSON.
-- Use double quotes for all keys and string values.
-- Do not use single quotes.
-- Do not use comments.
-- Do not use trailing commas.
-- Do not use Markdown inside `<tool>`.
-- The `<tool>` block must contain only one JSON object.
-
-## Strict Tool Format
-
-- Tool calls must be wrapped in `<tool>` and `</tool>`.
-- Do not use ```json fences for tool calls.
-- Do not output a raw JSON object as the final answer when a tool is needed.
-- If you decide to use a tool, your entire response must be exactly one `<tool>` block.
-
-# Tool Calling Contract
-
-A tool call is not a plan.
-A tool call is an action.
-
-If you need to use a tool, your entire response must be exactly one `<tool>` block.
-
-Do not explain that you will use a tool.
-Do not describe the next action in natural language.
-Do not output thoughts, plans, or reasoning before tool calls.
-
-### edit_file
-
-Replaces the full content of an existing file and returns a unified diff.
+### run_command
+Run a shell command.
 
 Arguments:
+- `command`: string
 
-- `path`: string
-- `content`: string
+### list_directory
+List a directory.
 
-Use this tool when modifying an existing file and you can provide the complete updated file content.
+Arguments:
+- `path`: string, optional
+- `max_entries`: integer, optional
 
-Prefer `replace_in_file` for small exact replacements.
-Prefer `edit_file` for broader edits.
+### find_files
+Find files by name or pattern.
+
+Arguments:
+- `pattern`: string
+- `path`: string, optional
+- `max_results`: integer, optional
+
+### search_in_files
+Search text in files.
+
+Arguments:
+- `query`: string
+- `path`: string, optional
+- `max_results`: integer, optional
+
+### git_status
+Show git status.
+
+Arguments: none.
+
+### git_diff
+Show git diff.
+
+Arguments: none.

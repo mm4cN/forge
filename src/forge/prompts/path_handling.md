@@ -21,21 +21,12 @@
 ## Examples
 
 User:
-
 Create file `src/main.cpp`
-
 Use:
-
 src/main.cpp
-
 User:
-
 Create file `../evil.txt`
-
 Use:
-
 ../evil.txt
-
 Do not replace it with:
-
 evil.txt
