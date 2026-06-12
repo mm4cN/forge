@@ -7,6 +7,7 @@ from forge.commands.session import register_session_commands
 from forge.commands.tools import register_tool_commands
 from forge.commands.usage import register_usage_commands
 from forge.commands.review import app as review_app
+from forge.commands.project import app as project_app
 
 app = typer.Typer(help="Forge — local coding agent")
 
@@ -18,3 +19,4 @@ register_tool_commands(app)
 register_usage_commands(app)
 app.add_typer(agent_app)
 app.add_typer(review_app)
+app.add_typer(project_app)

@@ -56,6 +56,18 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL,
             FOREIGN KEY(session_id) REFERENCES sessions(id)
         );
+
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            workspace_path TEXT NOT NULL UNIQUE,
+            git_remote TEXT,
+            project_md_path TEXT,
+            project_md_sha256 TEXT,
+            project_md_content TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
         """
     )
     conn.commit()
@@ -229,3 +241,64 @@ def list_tool_calls(
         """,
         (session_id,),
     ).fetchall()
+
+
+def upsert_project(
+    conn: sqlite3.Connection,
+    name: str,
+    workspace_path: str,
+    git_remote: str | None,
+    project_md_path: str,
+    project_md_sha256: str,
+    project_md_content: str,
+) -> None:
+    now = datetime.now().isoformat()
+
+    conn.execute(
+        """
+        INSERT INTO projects(
+            name,
+            workspace_path,
+            git_remote,
+            project_md_path,
+            project_md_sha256,
+            project_md_content,
+            created_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_path) DO UPDATE SET
+            name = excluded.name,
+            git_remote = excluded.git_remote,
+            project_md_path = excluded.project_md_path,
+            project_md_sha256 = excluded.project_md_sha256,
+            project_md_content = excluded.project_md_content,
+            updated_at = excluded.updated_at
+        """,
+        (
+            name,
+            workspace_path,
+            git_remote,
+            project_md_path,
+            project_md_sha256,
+            project_md_content,
+            now,
+            now,
+        ),
+    )
+
+    conn.commit()
+
+
+def get_project_by_workspace(
+    conn: sqlite3.Connection,
+    workspace_path: str,
+) -> sqlite3.Row | None:
+    return conn.execute(
+        """
+        SELECT *
+        FROM projects
+        WHERE workspace_path = ?
+        """,
+        (workspace_path,),
+    ).fetchone()

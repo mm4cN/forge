@@ -1,6 +1,8 @@
 import json
 import re
 
+from rich.console import Console
+
 from forge.approval import ask_for_approval, requires_approval
 from forge.config import load_config
 from forge.db import add_model_call, add_tool_call
@@ -8,11 +10,12 @@ from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
 
-
 TOOL_RE = re.compile(
     r"<tool>\s*(\{.*?\})\s*</tool>",
     re.DOTALL,
 )
+
+console = Console()
 
 
 def parse_tool_call(text: str) -> dict | None:
@@ -41,7 +44,8 @@ def run_agent(
     messages: list[dict[str, str]],
     session_id: str | None = None,
     conn=None,
-    max_steps: int = 8,
+    max_steps: int = 12,
+    show_steps: bool = False,
 ) -> str:
     provider = get_provider()
     system_prompt = build_system_prompt(model)
@@ -54,7 +58,11 @@ def run_agent(
         *messages,
     ]
 
-    for _ in range(max_steps):
+    invalid_tool_calls = 0
+
+    for step in range(1, max_steps + 1):
+        if show_steps:
+            console.print(f"[dim][step {step}/{max_steps}] Thinking...[/dim]")
         model_response = provider.chat(
             model,
             runtime_messages,
@@ -75,6 +83,8 @@ def run_agent(
         tool_call = parse_tool_call(answer)
 
         if tool_call is None:
+            if show_steps:
+                console.print(f"[dim][{step}/{max_steps}] Final answer[/dim]")
             return answer
 
         name = tool_call["name"]
@@ -82,6 +92,23 @@ def run_agent(
 
         config = load_config()
         approval_mode = bool(config.get("approval_mode", True))
+
+        if show_steps:
+            console.print(f"[cyan][step {step}/{max_steps}] Tool:[/cyan] {name}")
+
+            path = arguments.get("path")
+            query = arguments.get("query")
+            command = arguments.get("command")
+            pattern = arguments.get("pattern")
+
+            if path:
+                console.print(f"[dim]path: {path}[/dim]")
+            if query:
+                console.print(f"[dim]query: {query}[/dim]")
+            if pattern:
+                console.print(f"[dim]pattern: {pattern}[/dim]")
+            if command:
+                console.print(f"[dim]command: {command}[/dim]")
 
         if approval_mode and requires_approval(name):
             approved = ask_for_approval(
@@ -91,24 +118,33 @@ def run_agent(
 
             if not approved:
                 result = f"ERROR: Tool `{name}` was rejected by the user."
-
                 runtime_messages.append(
                     {
                         "role": "assistant",
                         "content": answer,
                     }
                 )
-
                 runtime_messages.append(
                     {
                         "role": "user",
                         "content": (f"Tool result for `{name}`:\n\n{result}"),
                     }
                 )
-
-                continue
+                return f"Tool `{name}` was rejected by the user. No changes were made."
 
         if name == "__invalid_tool_call__":
+            invalid_tool_calls += 1
+            if invalid_tool_calls >= 2:
+                return (
+                    "ERROR: Model repeatedly produced invalid tool calls. "
+                    "Try a simpler prompt, increase --max-steps, or use a stronger model."
+                )
+            if show_steps:
+                console.print(
+                    f"[yellow][step {step}/{max_steps}] Invalid tool call[/yellow]"
+                )
+                console.print(f"[dim]{arguments['error']}[/dim]")
+
             runtime_messages.append(
                 {
                     "role": "assistant",
@@ -132,6 +168,8 @@ def run_agent(
             )
 
             continue
+
+        invalid_tool_calls = 0
 
         result = execute_tool(
             name,

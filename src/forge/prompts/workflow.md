@@ -97,3 +97,13 @@ Correct:
 - Use `edit_file` when a file needs broader changes.
 - Before using `edit_file`, read the file first.
 - Do not use `write_file` to modify existing files.
+
+## Rejected Tools
+
+If a tool call is rejected by the user, do not retry the same change.
+Treat rejection as a signal that the proposed action was incorrect or unwanted.
+
+After a rejection:
+- explain what was rejected
+- ask for clarification if needed
+- do not continue editing unless the user explicitly asked for another attempt

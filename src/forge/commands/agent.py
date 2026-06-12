@@ -80,6 +80,8 @@ def agent(
     prompt: str,
     model: str | None = typer.Option(None, "--model", "-m"),
     session: str | None = typer.Option(None, "--session", "-s"),
+    max_steps: int = typer.Option(12, "--max-steps"),
+    show_steps: bool = typer.Option(False, "--show-steps"),
 ) -> None:
     """
     Run Forge agent with tool execution.
@@ -98,6 +100,8 @@ def agent(
             messages,
             session_id=session,
             conn=conn,
+            max_steps=max_steps,
+            show_steps=show_steps,
         )
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
