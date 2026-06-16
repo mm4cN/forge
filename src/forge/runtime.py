@@ -6,6 +6,7 @@ from rich.console import Console
 from forge.approval import ask_for_approval, requires_approval
 from forge.config import load_config
 from forge.db import add_model_call, add_tool_call
+from forge.providers.base import ModelInfo, ModelResponse
 from forge.providers.factory import get_provider
 from forge.prompt_loader import build_system_prompt
 from forge.tools.registry import execute_tool
@@ -18,6 +19,17 @@ TOOL_RE = re.compile(
 
 console = Console()
 
+def compact_tool_result(
+    result: str,
+    max_tool_result_chars: int,
+) -> str:
+    if len(result) <= max_tool_result_chars:
+        return result
+
+    return (
+        result[:max_tool_result_chars]
+        + "\n\n...<truncated>"
+    )
 
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
@@ -40,6 +52,27 @@ def parse_tool_call(text: str) -> dict | None:
         }
 
 
+def print_token_info(model_response: ModelResponse, info: ModelInfo) -> None:
+    prompt_tokens = model_response.prompt_tokens
+
+    usage_pct = None
+    if prompt_tokens is not None and info.context_window > 0:
+        usage_pct = (prompt_tokens / info.context_window) * 100
+
+    usage = "-"
+    if usage_pct is not None:
+        usage = f"{usage_pct:.1f}%"
+
+    console.print(
+        "[dim]"
+        f"tokens: input={prompt_tokens or '-'} / {info.context_window} ({usage}), "
+        f"output={model_response.completion_tokens or '-'}, "
+        f"total={model_response.total_tokens or '-'}, "
+        f"duration={model_response.duration_ms or '-'} ms"
+        "[/dim]"
+    )
+
+
 def run_agent(
     model: str,
     messages: list[dict[str, str]],
@@ -49,7 +82,14 @@ def run_agent(
     show_steps: bool = False,
 ) -> str:
     provider = get_provider()
+    info = provider.get_model_info(model)
+    if show_steps:
+        console.print(
+            f"[dim]model: {model} context: {info.context_window}[/dim]"
+        )
+
     system_prompt = build_system_prompt("agent")
+
 
     project_memory = None
     if conn is not None:
@@ -84,14 +124,7 @@ def run_agent(
             runtime_messages,
         )
         if show_steps:
-            console.print(
-                "[dim]"
-                f"tokens: input={model_response.prompt_tokens or '-'}, "
-                f"output={model_response.completion_tokens or '-'}, "
-                f"total={model_response.total_tokens or '-'}, "
-                f"duration={model_response.duration_ms or '-'} ms"
-                "[/dim]"
-            )
+            print_token_info(model_response, info)
 
         answer = model_response.text
         if conn is not None and session_id is not None:
@@ -110,14 +143,7 @@ def run_agent(
         if tool_call is None:
             if show_steps:
                 console.print(f"[dim][{step}/{max_steps}] Final answer[/dim]")
-                console.print(
-                    "[dim]"
-                    f"tokens: input={model_response.prompt_tokens or '-'}, "
-                    f"output={model_response.completion_tokens or '-'}, "
-                    f"total={model_response.total_tokens or '-'}, "
-                    f"duration={model_response.duration_ms or '-'} ms"
-                    "[/dim]"
-                )
+                print_token_info(model_response, info)
 
             return answer
 
@@ -209,6 +235,11 @@ def run_agent(
             name,
             arguments,
         )
+        if show_steps:
+            console.print(
+                f"[dim]tool result: {len(result)} chars[/dim]"
+            )
+
         if conn is not None and session_id is not None:
             add_tool_call(
                 conn=conn,
@@ -225,10 +256,14 @@ def run_agent(
             }
         )
 
+        compact_result = compact_tool_result(result, info.max_tool_results_chars)
         runtime_messages.append(
             {
                 "role": "user",
-                "content": (f"Tool result for `{name}`:\n\n{result}"),
+                "content": (
+                    f"Tool result for `{name}`:\n\n"
+                    f"{compact_result}"
+                ),
             }
         )
 

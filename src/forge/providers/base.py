@@ -2,6 +2,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 
+@dataclass(slots=True)
+class ModelInfo:
+    context_window: int
+    max_tool_results_chars: int
+
+
 @dataclass
 class ModelResponse:
     text: str
@@ -28,3 +34,10 @@ class ModelProvider(ABC):
     @abstractmethod
     def list_models(self) -> list[str]:
         pass
+
+    @abstractmethod
+    def get_model_info(
+        self,
+        model: str,
+    ) -> ModelInfo:
+        raise NotImplementedError

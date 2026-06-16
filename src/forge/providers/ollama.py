@@ -4,8 +4,16 @@ import time
 import requests
 
 from forge.config import load_config
-from forge.providers.base import ModelProvider, ModelResponse
+from forge.providers.base import ModelProvider, ModelResponse, ModelInfo
 
+QWEN_CONTEXT_WINDOWS = {
+    "qwen2.5-coder:7b": 4096,
+    "qwen3:8b": 4096,
+}
+QWEN_MAX_TOOL_RESULTS_CHARS = {
+    "qwen2.5-coder:7b": 2048,
+    "qwen3:8b": 2048,
+}
 
 class OllamaProvider(ModelProvider):
     @property
@@ -98,3 +106,18 @@ class OllamaProvider(ModelProvider):
         data = response.json()
 
         return [model["name"] for model in data.get("models", [])]
+
+    def get_model_info(
+        self,
+        model: str,
+    ) -> ModelInfo:
+        return ModelInfo(
+            context_window=QWEN_CONTEXT_WINDOWS.get(
+                model,
+                4096,
+            ),
+            max_tool_results_chars=QWEN_MAX_TOOL_RESULTS_CHARS.get(
+                model,
+                2048,
+            ),
+        )

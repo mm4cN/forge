@@ -1,7 +1,7 @@
 import os
 import requests
 
-from forge.providers.base import ModelProvider, ModelResponse
+from forge.providers.base import ModelProvider, ModelResponse, ModelInfo
 from requests import HTTPError
 import time
 
@@ -179,3 +179,12 @@ class GeminiProvider(ModelProvider):
             )
 
         return contents
+
+    def get_model_info(
+        self,
+        model: str,
+    ) -> ModelInfo:
+        return ModelInfo(
+            context_window=1_000_000,
+            max_tool_results_chars=4_000,
+        )
