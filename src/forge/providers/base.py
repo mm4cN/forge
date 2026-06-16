@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class ModelInfo:
     context_window: int
-    max_tool_results_chars: int
+    max_tool_results_chars: int = 4096
 
 
 @dataclass

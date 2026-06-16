@@ -4,6 +4,7 @@ from forge.config import load_config
 from forge.providers.base import ModelProvider
 from forge.providers.gemini import GeminiProvider
 from forge.providers.ollama import OllamaProvider
+from forge.providers.openrouter import OpenRouterProvider
 
 
 ProviderFactory = Callable[[], ModelProvider]
@@ -12,6 +13,7 @@ ProviderFactory = Callable[[], ModelProvider]
 PROVIDERS: dict[str, ProviderFactory] = {
     "ollama": OllamaProvider,
     "gemini": GeminiProvider,
+    "openrouter": OpenRouterProvider,
 }
 
 

@@ -15,6 +15,7 @@ Forge is a local-first coding assistant designed for developers who want transpa
 - Multiple providers
   - Ollama
   - Gemini
+  - OpenRouter
 - Agent and non-agent modes
 - Interactive chat sessions
 - Persistent SQLite-backed history
@@ -148,7 +149,6 @@ approval_mode = true
 1. Context size telemetry
 2. Session summaries
 3. Context builder
-4. OpenRouter provider
 
 ## Future
 

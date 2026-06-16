@@ -27,7 +27,7 @@ def print_footer(
         console.print(f"[dim]duration: {duration_ms} ms[/dim]")
 
     tps = tokens_per_second(
-        total_tokens,
+        completion_tokens,
         duration_ms,
     )
     if (
