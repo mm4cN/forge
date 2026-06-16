@@ -144,14 +144,20 @@ default_model = "qwen2.5-coder:7b"
 approval_mode = true
 ```
 
-## Roadmap
+## Next
+1. Context size telemetry
+2. Session summaries
+3. Context builder
+4. OpenRouter provider
 
-- Project memory
-- Approval diff preview
-- OpenRouter provider
-- Session summaries
-- Context builder
-- Neovim plugin
+## Future
+
+- Read-only review agent
+- Project memory embeddings
+- Multi-project awareness
+
+## NTH 
+- MCP definition
 
 ## License
 
