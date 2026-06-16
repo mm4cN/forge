@@ -1,3 +1,4 @@
+import json
 import typer
 import subprocess
 
@@ -10,6 +11,20 @@ from forge.tools.git_diff import git_diff
 
 app = typer.Typer()
 console = Console()
+
+
+def extract_review_text(text: str) -> str:
+    text = text.strip()
+    try:
+        data = json.loads(text)
+        if isinstance(data, dict):
+            response = data.get("response")
+            if isinstance(response, str):
+                return response
+    except Exception:
+        pass
+
+    return text
 
 
 @app.command()
@@ -43,11 +58,13 @@ def review(
         raise typer.Exit(1)
 
     console.print()
-    console.print(response.text)
+    console.print(extract_review_text(response.text))
     console.print()
 
     print_footer(
         selected_model,
         total_tokens=response.total_tokens,
         duration_ms=response.duration_ms,
+        prompt_tokens=response.prompt_tokens,
+        completion_tokens=response.completion_tokens,
     )

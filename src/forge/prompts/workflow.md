@@ -32,15 +32,3 @@ Do not call `list_directory` first unless the paths fail or are ambiguous.
 - Use `find_files` for file names or patterns.
 - Read only the most relevant files after search.
 
-## Build and Run
-
-For create/build/run tasks:
-1. create or edit files
-2. run the build command
-3. run the resulting program or relevant check
-
-## Errors
-
-- If a tool returns `ERROR`, inspect the cause and try one focused fix.
-- Do not repeat the same failed action.
-- If a tool is rejected by the user, stop the current task.

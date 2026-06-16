@@ -49,7 +49,7 @@ def run_agent(
     show_steps: bool = False,
 ) -> str:
     provider = get_provider()
-    system_prompt = build_system_prompt()
+    system_prompt = build_system_prompt("agent")
 
     project_memory = None
     if conn is not None:
@@ -79,6 +79,15 @@ def run_agent(
             model,
             runtime_messages,
         )
+        if show_steps:
+            console.print(
+                "[dim]"
+                f"tokens: input={model_response.prompt_tokens or '-'}, "
+                f"output={model_response.completion_tokens or '-'}, "
+                f"total={model_response.total_tokens or '-'}, "
+                f"duration={model_response.duration_ms or '-'} ms"
+                "[/dim]"
+            )
 
         answer = model_response.text
         if conn is not None and session_id is not None:

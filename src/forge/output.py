@@ -9,6 +9,8 @@ console = Console()
 def print_footer(
     model: str,
     session: str | None = None,
+    prompt_tokens: int | None = None,
+    completion_tokens: int | None = None,
     total_tokens: int | None = None,
     duration_ms: int | None = None,
     show_workspace: bool = True,
@@ -28,6 +30,18 @@ def print_footer(
         total_tokens,
         duration_ms,
     )
+    if (
+        prompt_tokens is not None
+        or completion_tokens is not None
+        or total_tokens is not None
+    ):
+        console.print(
+            "[dim]"
+            f"tokens: input={prompt_tokens or '-'}, "
+            f"output={completion_tokens or '-'}, "
+            f"total={total_tokens or '-'}"
+            "[/dim]"
+        )
 
     if tps is not None:
         console.print(f"[dim]throughput: {tps:.1f} tok/s[/dim]")

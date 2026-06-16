@@ -4,6 +4,7 @@ from rich.console import Console
 
 from forge.db import add_message, connect, create_session, get_messages, add_model_call
 from forge.config import load_config
+from forge.prompt_loader import build_system_prompt
 from forge.providers.factory import get_provider
 from forge.runtime import run_agent
 from forge.workspace import get_workspace
@@ -40,11 +41,18 @@ def ask(
 
     add_message(conn, session, "user", prompt)
     messages = get_messages(conn, session)
+    runtime_messages = [
+        {
+            "role": "system",
+            "content": build_system_prompt("ask"),
+        },
+        *messages,
+    ]
 
     provider = get_provider()
 
     try:
-        model_response = provider.chat(selected_model, messages)
+        model_response = provider.chat(selected_model, runtime_messages)
     except RuntimeError as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
@@ -72,6 +80,8 @@ def ask(
         session,
         total_tokens=model_response.total_tokens,
         duration_ms=model_response.duration_ms,
+        prompt_tokens=model_response.prompt_tokens,
+        completion_tokens=model_response.completion_tokens,
     )
 
 
