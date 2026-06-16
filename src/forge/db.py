@@ -104,6 +104,36 @@ def add_message(
     conn.commit()
 
 
+def get_recent_messages(
+    conn: sqlite3.Connection,
+    session_id: str,
+    limit: int = 12,
+) -> list[dict[str, str]]:
+    rows = conn.execute(
+        """
+        SELECT role, content
+        FROM messages
+        WHERE session_id = ?
+        ORDER BY id DESC
+        LIMIT ?
+        """,
+        (
+            session_id,
+            limit,
+        ),
+    ).fetchall()
+
+    rows.reverse()
+
+    return [
+        {
+            "role": row["role"],
+            "content": row["content"],
+        }
+        for row in rows
+    ]
+
+
 def get_messages(conn: sqlite3.Connection, session_id: str) -> list[dict[str, str]]:
     rows = conn.execute(
         """

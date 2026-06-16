@@ -75,6 +75,10 @@ def run_agent(
     for step in range(1, max_steps + 1):
         if show_steps:
             console.print(f"[dim][step {step}/{max_steps}] Thinking...[/dim]")
+            context_chars = sum(len(message["content"]) for message in runtime_messages)
+            console.print(f"[dim]context: {context_chars} chars[/dim]")
+            console.print(f"[dim]messages: {len(runtime_messages)}[/dim]")
+
         model_response = provider.chat(
             model,
             runtime_messages,
@@ -106,6 +110,15 @@ def run_agent(
         if tool_call is None:
             if show_steps:
                 console.print(f"[dim][{step}/{max_steps}] Final answer[/dim]")
+                console.print(
+                    "[dim]"
+                    f"tokens: input={model_response.prompt_tokens or '-'}, "
+                    f"output={model_response.completion_tokens or '-'}, "
+                    f"total={model_response.total_tokens or '-'}, "
+                    f"duration={model_response.duration_ms or '-'} ms"
+                    "[/dim]"
+                )
+
             return answer
 
         name = tool_call["name"]

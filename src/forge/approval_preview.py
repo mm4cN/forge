@@ -61,7 +61,11 @@ def build_replace_preview(arguments: dict) -> ApprovalPreview:
     old = arguments.get("old")
     new = arguments.get("new")
 
-    if not isinstance(path, str) or not isinstance(old, str) or not isinstance(new, str):
+    if (
+        not isinstance(path, str)
+        or not isinstance(old, str)
+        or not isinstance(new, str)
+    ):
         return build_default_preview(arguments)
 
     file = resolve_in_workspace(path)

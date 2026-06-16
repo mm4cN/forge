@@ -2,7 +2,13 @@ import typer
 
 from rich.console import Console
 
-from forge.db import add_message, connect, create_session, get_messages, add_model_call
+from forge.db import (
+    add_message,
+    connect,
+    create_session,
+    add_model_call,
+    get_recent_messages,
+)
 from forge.config import load_config
 from forge.prompt_loader import build_system_prompt
 from forge.providers.factory import get_provider
@@ -40,7 +46,12 @@ def ask(
     session = ensure_session(conn, session, prompt)
 
     add_message(conn, session, "user", prompt)
-    messages = get_messages(conn, session)
+    messages = get_recent_messages(
+        conn,
+        session,
+        limit=12,
+    )
+
     runtime_messages = [
         {
             "role": "system",
@@ -102,7 +113,11 @@ def agent(
     session = ensure_session(conn, session, prompt)
 
     add_message(conn, session, "user", prompt)
-    messages = get_messages(conn, session)
+    messages = get_recent_messages(
+        conn,
+        session,
+        limit=12,
+    )
 
     try:
         answer = run_agent(
@@ -129,6 +144,8 @@ def agent(
 def chat(
     model: str | None = typer.Option(None, "--model", "-m"),
     session: str | None = typer.Option(None, "--session", "-s"),
+    max_steps: int = typer.Option(12, "--max-steps"),
+    show_steps: bool = typer.Option(False, "--show-steps"),
 ) -> None:
     """
     Start or resume an interactive agent chat session.
@@ -164,7 +181,11 @@ def chat(
             break
 
         add_message(conn, session, "user", prompt)
-        messages = get_messages(conn, session)
+        messages = get_recent_messages(
+            conn,
+            session,
+            limit=12,
+        )
 
         try:
             answer = run_agent(
@@ -172,6 +193,8 @@ def chat(
                 messages,
                 session_id=session,
                 conn=conn,
+                show_steps=show_steps,
+                max_steps=max_steps,
             )
         except RuntimeError as exc:
             console.print(f"[red]Error:[/red] {exc}")
