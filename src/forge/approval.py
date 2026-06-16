@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.syntax import Syntax
 
+from forge.approval_preview import build_approval_preview
+
 console = Console()
 
 APPROVAL_REQUIRED_TOOLS = {
@@ -22,17 +24,23 @@ def ask_for_approval(
     console.print()
     console.print(f"[bold yellow]Tool approval required:[/bold yellow] {tool_name}")
 
-    rendered = repr(arguments)
+    preview = build_approval_preview(
+        tool_name,
+        arguments,
+    )
 
     console.print(
         Syntax(
-            rendered,
-            "python",
-            theme="monokai",
-            line_numbers=False,
+            preview.content,
+            preview.lexer,
+            line_numbers=True,
             word_wrap=True,
         )
     )
+
+    if not preview.requires_approval:
+        console.print("[dim]No changes detected. Skipping approval.[/dim]")
+        return True
 
     answer = console.input("Approve? (y/N): ")
 
