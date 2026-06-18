@@ -14,6 +14,7 @@ def print_footer(
     total_tokens: int | None = None,
     duration_ms: int | None = None,
     show_workspace: bool = True,
+    steps: int | None = None,
 ) -> None:
     console.print(f"[dim]model: {model}[/dim]")
 
@@ -39,7 +40,8 @@ def print_footer(
             "[dim]"
             f"tokens: input={prompt_tokens or '-'}, "
             f"output={completion_tokens or '-'}, "
-            f"total={total_tokens or '-'}"
+            f"total={total_tokens or '-'}, "
+            f"steps={steps}"
             "[/dim]"
         )
 

@@ -8,12 +8,15 @@ from forge.providers.base import ModelProvider, ModelResponse, ModelInfo
 
 QWEN_CONTEXT_WINDOWS = {
     "qwen2.5-coder:7b": 4096,
+    "qwen2.5-coder:14b": 32_000,
     "qwen3:8b": 4096,
 }
 QWEN_MAX_TOOL_RESULTS_CHARS = {
     "qwen2.5-coder:7b": 2048,
+    "qwen2.5-coder:14b": 4096,
     "qwen3:8b": 2048,
 }
+
 
 class OllamaProvider(ModelProvider):
     @property

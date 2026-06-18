@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 import json
 import re
-
 from rich.console import Console
 
 from forge.approval import ask_for_approval, requires_approval
@@ -19,6 +19,17 @@ TOOL_RE = re.compile(
 
 console = Console()
 
+
+@dataclass(slots=True)
+class AgentResult:
+    text: str
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    duration_ms: int = 0
+    steps: int = 0
+
+
 def compact_tool_result(
     result: str,
     max_tool_result_chars: int,
@@ -26,10 +37,8 @@ def compact_tool_result(
     if len(result) <= max_tool_result_chars:
         return result
 
-    return (
-        result[:max_tool_result_chars]
-        + "\n\n...<truncated>"
-    )
+    return result[:max_tool_result_chars] + "\n\n...<truncated>"
+
 
 def parse_tool_call(text: str) -> dict | None:
     match = TOOL_RE.search(text)
@@ -80,16 +89,13 @@ def run_agent(
     conn=None,
     max_steps: int = 12,
     show_steps: bool = False,
-) -> str:
+) -> AgentResult:
     provider = get_provider()
     info = provider.get_model_info(model)
     if show_steps:
-        console.print(
-            f"[dim]model: {model} context: {info.context_window}[/dim]"
-        )
+        console.print(f"[dim]model: {model} | context window: {info.context_window}[/dim]")
 
     system_prompt = build_system_prompt("agent")
-
 
     project_memory = None
     if conn is not None:
@@ -111,13 +117,19 @@ def run_agent(
     runtime_messages.extend(messages)
 
     invalid_tool_calls = 0
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
+    total_tokens = 0
+    total_duration_ms = 0
 
     for step in range(1, max_steps + 1):
         if show_steps:
-            console.print(f"[dim][step {step}/{max_steps}] Thinking...[/dim]")
             context_chars = sum(len(message["content"]) for message in runtime_messages)
-            console.print(f"[dim]context: {context_chars} chars[/dim]")
-            console.print(f"[dim]messages: {len(runtime_messages)}[/dim]")
+            console.print(
+                f"[dim]step: {step}/{max_steps} | "
+                f"context: {context_chars} chars | "
+                f"messages: {len(runtime_messages)}[/dim]"
+            )
 
         model_response = provider.chat(
             model,
@@ -125,6 +137,11 @@ def run_agent(
         )
         if show_steps:
             print_token_info(model_response, info)
+
+        total_prompt_tokens += model_response.prompt_tokens or 0
+        total_completion_tokens += model_response.completion_tokens or 0
+        total_tokens += model_response.total_tokens or 0
+        total_duration_ms += model_response.duration_ms or 0
 
         answer = model_response.text
         if conn is not None and session_id is not None:
@@ -142,10 +159,16 @@ def run_agent(
 
         if tool_call is None:
             if show_steps:
-                console.print(f"[dim][{step}/{max_steps}] Final answer[/dim]")
-                print_token_info(model_response, info)
+                console.print(f"[dim]Final answer[/dim]")
 
-            return answer
+            return AgentResult(
+                text=answer,
+                prompt_tokens=total_prompt_tokens,
+                completion_tokens=total_completion_tokens,
+                total_tokens=total_tokens,
+                duration_ms=total_duration_ms,
+                steps=step,
+            )
 
         name = tool_call["name"]
         arguments = tool_call.get("arguments", {})
@@ -190,15 +213,30 @@ def run_agent(
                         "content": (f"Tool result for `{name}`:\n\n{result}"),
                     }
                 )
-                return f"Tool `{name}` was rejected by the user. No changes were made."
+                return AgentResult(
+                    text=f"Tool `{name}` was rejected by the user. No changes were made.",
+                    prompt_tokens=total_prompt_tokens,
+                    completion_tokens=total_completion_tokens,
+                    total_tokens=total_tokens,
+                    duration_ms=total_duration_ms,
+                    steps=step,
+                )
 
         if name == "__invalid_tool_call__":
             invalid_tool_calls += 1
             if invalid_tool_calls >= 2:
-                return (
-                    "ERROR: Model repeatedly produced invalid tool calls. "
-                    "Try a simpler prompt, increase --max-steps, or use a stronger model."
+                return AgentResult(
+                    text=(
+                        "ERROR: Model repeatedly produced invalid tool calls. "
+                        "Try a simpler prompt, increase --max-steps, or use a stronger model."
+                    ),
+                    prompt_tokens=total_prompt_tokens,
+                    completion_tokens=total_completion_tokens,
+                    total_tokens=total_tokens,
+                    duration_ms=total_duration_ms,
+                    steps=step,
                 )
+
             if show_steps:
                 console.print(
                     f"[yellow][step {step}/{max_steps}] Invalid tool call[/yellow]"
@@ -236,9 +274,7 @@ def run_agent(
             arguments,
         )
         if show_steps:
-            console.print(
-                f"[dim]tool result: {len(result)} chars[/dim]"
-            )
+            console.print(f"[dim]tool result: {len(result)} chars[/dim]")
 
         if conn is not None and session_id is not None:
             add_tool_call(
@@ -260,11 +296,15 @@ def run_agent(
         runtime_messages.append(
             {
                 "role": "user",
-                "content": (
-                    f"Tool result for `{name}`:\n\n"
-                    f"{compact_result}"
-                ),
+                "content": (f"Tool result for `{name}`:\n\n{compact_result}"),
             }
         )
 
-    return "ERROR: Reached maximum agent steps."
+    return AgentResult(
+        text="ERROR: Reached maximum agent steps.",
+        prompt_tokens=total_prompt_tokens,
+        completion_tokens=total_completion_tokens,
+        total_tokens=total_tokens,
+        duration_ms=total_duration_ms,
+        steps=max_steps,
+    )

@@ -46,8 +46,7 @@ class OpenRouterProvider(ModelProvider):
 
         if response.status_code >= 400:
             raise RuntimeError(
-                f"OpenRouter request failed: {response.status_code}\n"
-                f"{response.text}"
+                f"OpenRouter request failed: {response.status_code}\n{response.text}"
             )
 
         data = response.json()
@@ -74,8 +73,7 @@ class OpenRouterProvider(ModelProvider):
 
         if response.status_code >= 400:
             raise RuntimeError(
-                f"OpenRouter model list failed: {response.status_code}\n"
-                f"{response.text}"
+                f"OpenRouter model list failed: {response.status_code}\n{response.text}"
             )
 
         data = response.json()

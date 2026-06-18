@@ -120,7 +120,7 @@ def agent(
     )
 
     try:
-        answer = run_agent(
+        result = run_agent(
             selected_model,
             messages,
             session_id=session,
@@ -132,12 +132,20 @@ def agent(
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(1)
 
-    add_message(conn, session, "assistant", answer)
+    add_message(conn, session, "assistant", result.text)
 
     console.print()
-    console.print(answer)
+    console.print(result.text)
     console.print()
-    print_footer(selected_model, session)
+    print_footer(
+        selected_model,
+        session,
+        prompt_tokens=result.prompt_tokens,
+        completion_tokens=result.completion_tokens,
+        total_tokens=result.total_tokens,
+        duration_ms=result.duration_ms,
+        steps=result.steps,
+    )
 
 
 @app.command()
@@ -166,7 +174,7 @@ def chat(
 
     while True:
         try:
-            prompt = typer.prompt("forge")
+            prompt = typer.prompt("user")
         except KeyboardInterrupt:
             console.print("\n[dim]bye[/dim]")
             break
@@ -188,7 +196,7 @@ def chat(
         )
 
         try:
-            answer = run_agent(
+            result = run_agent(
                 selected_model,
                 messages,
                 session_id=session,
@@ -200,8 +208,8 @@ def chat(
             console.print(f"[red]Error:[/red] {exc}")
             continue
 
-        add_message(conn, session, "assistant", answer)
+        add_message(conn, session, "assistant", result.text)
 
         console.print()
-        console.print(f"[bold green]Forge:[/bold green]\n{answer}")
+        console.print(f"[bold green]Forge:[/bold green]\n{result.text}")
         console.print()
